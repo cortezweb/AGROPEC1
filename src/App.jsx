@@ -8,6 +8,7 @@ import Processing from './views/Processing';
 import Sales from './views/Sales';
 import Staff from './views/Staff';
 import Machinery from './views/Machinery';
+import IrrigationWeather from './views/IrrigationWeather';
 import { db } from './firebase';
 import { ref, onValue, set } from 'firebase/database';
 
@@ -204,6 +205,47 @@ const MOCK_MACHINE_INV = {
   }
 };
 
+const MOCK_WEATHER_LIVE = {
+  temperature: 14.5,
+  humidity: 45,
+  rain: 2.4,
+  wind: 12.8,
+  windDirection: 'NNE',
+  lastUpdate: new Date().toISOString()
+};
+
+const MOCK_WEATHER_HISTORY = {
+  'entry-1': { time: '08:00', temp: 8.5, hum: 65 },
+  'entry-2': { time: '10:00', temp: 11.2, hum: 55 },
+  'entry-3': { time: '12:00', temp: 14.8, hum: 40 },
+  'entry-4': { time: '14:00', temp: 16.5, hum: 38 },
+  'entry-5': { time: '16:00', temp: 15.1, hum: 42 },
+  'entry-6': { time: '18:00', temp: 13.0, hum: 48 }
+};
+
+const MOCK_IRRIGATION_LOGS = {
+  'log-1': {
+    id: 'log-1',
+    sector: 'Lote Canaviri C-01',
+    mmAccumulated: 12.5,
+    date: '2026-06-10',
+    type: 'Goteo',
+    hours: 3,
+    caudal: 15,
+    createdAt: '2026-06-10T08:00:00.000Z'
+  },
+  'log-2': {
+    id: 'log-2',
+    sector: 'Lote Canaviri C-03',
+    mmAccumulated: 8.0,
+    date: '2026-06-11',
+    type: 'Aspersión',
+    hours: 2,
+    caudal: 20,
+    createdAt: '2026-06-11T09:00:00.000Z'
+  }
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
@@ -289,6 +331,33 @@ function App() {
           set(machineInvoicesRef, MOCK_MACHINE_INV).catch(err => console.error(err));
         }
       }, { onlyOnce: true });
+
+      // Seed Weather Live
+      const weatherLiveRef = ref(db, 'weather_live');
+      onValue(weatherLiveRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(weatherLiveRef, MOCK_WEATHER_LIVE).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Weather History
+      const weatherHistoryRef = ref(db, 'weather_history');
+      onValue(weatherHistoryRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(weatherHistoryRef, MOCK_WEATHER_HISTORY).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Irrigation Logs
+      const irrigationLogsRef = ref(db, 'irrigation_logs');
+      onValue(irrigationLogsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(irrigationLogsRef, MOCK_IRRIGATION_LOGS).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
     }
   }, [isAuthenticated]);
 
@@ -348,6 +417,9 @@ function App() {
         )}
         {activeView === 'machinery' && (
           <Machinery />
+        )}
+        {activeView === 'irrigation' && (
+          <IrrigationWeather />
         )}
       </main>
     </div>

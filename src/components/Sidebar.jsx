@@ -103,6 +103,19 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
+          onClick={() => onViewChange('irrigation')}
+          style={{
+            ...styles.navLink,
+            ...(activeView === 'irrigation' ? styles.navLinkActive : {})
+          }}
+        >
+          <svg style={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z" />
+          </svg>
+          Riego y Clima (IoT)
+        </button>
+
+        <button
           onClick={() => onViewChange('sales')}
           style={{
             ...styles.navLink,
