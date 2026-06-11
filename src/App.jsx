@@ -9,6 +9,7 @@ import Sales from './views/Sales';
 import Staff from './views/Staff';
 import Machinery from './views/Machinery';
 import IrrigationWeather from './views/IrrigationWeather';
+import Warehouse from './views/Warehouse';
 import { db } from './firebase';
 import { ref, onValue, set } from 'firebase/database';
 
@@ -246,6 +247,77 @@ const MOCK_IRRIGATION_LOGS = {
   }
 };
 
+const MOCK_WAREHOUSE_INVENTORY = {
+  'item-1': {
+    id: 'item-1',
+    product: 'Semilla de Cañihua Cupilapaca Seleccionada',
+    stock: 250,
+    unit: 'Kg',
+    warehouse: 'Bodega Principal',
+    expiration: '2026-12-15'
+  },
+  'item-2': {
+    id: 'item-2',
+    product: 'Fertilizante Orgánico NPK',
+    stock: 80,
+    unit: 'Sacos (50kg)',
+    warehouse: 'Bodega Agroquímicos',
+    expiration: '2026-07-05'
+  },
+  'item-3': {
+    id: 'item-3',
+    product: 'Filtro de Aceite John Deere',
+    stock: 5,
+    unit: 'Unidades',
+    warehouse: 'Bodega Repuestos',
+    expiration: '2030-01-01'
+  }
+};
+
+const MOCK_WAREHOUSE_MOVEMENTS = {
+  'mov-1': {
+    id: 'mov-1',
+    date: '2026-06-05',
+    type: 'Entrada',
+    product: 'Fertilizante Orgánico NPK',
+    qty: 100,
+    unit: 'Sacos (50kg)',
+    warehouse: 'Bodega Agroquímicos',
+    targetOrSource: 'Proveedor BioSistemas',
+    responsible: 'Hamilton Canaviri'
+  },
+  'mov-2': {
+    id: 'mov-2',
+    date: '2026-06-08',
+    type: 'Salida',
+    product: 'Fertilizante Orgánico NPK',
+    qty: 20,
+    unit: 'Sacos (50kg)',
+    warehouse: 'Bodega Agroquímicos',
+    targetOrSource: 'Cuartel A-1',
+    responsible: 'Mateo Quispe'
+  }
+};
+
+const MOCK_WAREHOUSE_INVOICES = {
+  'fact-1': {
+    id: 'fact-1',
+    invoiceNumber: 'FAC-5520',
+    provider: 'Corporación Semillas Andinas',
+    amount: 1250.00,
+    status: 'Pendiente',
+    date: '2026-06-02'
+  },
+  'fact-2': {
+    id: 'fact-2',
+    invoiceNumber: 'FAC-9844',
+    provider: 'Repuestos Agrícolas El Sur',
+    amount: 340.00,
+    status: 'Pagado',
+    date: '2026-05-28'
+  }
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
@@ -358,6 +430,33 @@ function App() {
           set(irrigationLogsRef, MOCK_IRRIGATION_LOGS).catch(err => console.error(err));
         }
       }, { onlyOnce: true });
+
+      // Seed Warehouse Inventory
+      const warehouseInventoryRef = ref(db, 'warehouse_inventory');
+      onValue(warehouseInventoryRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(warehouseInventoryRef, MOCK_WAREHOUSE_INVENTORY).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Warehouse Movements
+      const warehouseMovementsRef = ref(db, 'warehouse_movements');
+      onValue(warehouseMovementsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(warehouseMovementsRef, MOCK_WAREHOUSE_MOVEMENTS).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Warehouse Invoices
+      const warehouseInvoicesRef = ref(db, 'warehouse_invoices');
+      onValue(warehouseInvoicesRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(warehouseInvoicesRef, MOCK_WAREHOUSE_INVOICES).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
     }
   }, [isAuthenticated]);
 
@@ -420,6 +519,9 @@ function App() {
         )}
         {activeView === 'irrigation' && (
           <IrrigationWeather />
+        )}
+        {activeView === 'warehouse' && (
+          <Warehouse />
         )}
       </main>
     </div>

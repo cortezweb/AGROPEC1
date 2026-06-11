@@ -116,6 +116,22 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
+          onClick={() => onViewChange('warehouse')}
+          style={{
+            ...styles.navLink,
+            ...(activeView === 'warehouse' ? styles.navLinkActive : {})
+          }}
+        >
+          <svg style={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <line x1="9" y1="9" x2="15" y2="9" />
+            <line x1="9" y1="15" x2="15" y2="15" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+          </svg>
+          Control de Bodegas
+        </button>
+
+        <button
           onClick={() => onViewChange('sales')}
           style={{
             ...styles.navLink,
