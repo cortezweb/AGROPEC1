@@ -7,6 +7,7 @@ import LotDetail from './views/LotDetail';
 import Processing from './views/Processing';
 import Sales from './views/Sales';
 import Staff from './views/Staff';
+import Machinery from './views/Machinery';
 import { db } from './firebase';
 import { ref, onValue, set } from 'firebase/database';
 
@@ -124,6 +125,85 @@ const MOCK_STAFF = {
   }
 };
 
+const MOCK_MACHINERY = {
+  'mac-1': {
+    id: 'mac-1',
+    name: 'Tractor John Deere 5075E',
+    hourMeter: 1180,
+    nextMaintenance: 1200,
+    createdAt: '2026-06-01T08:00:00.000Z'
+  },
+  'mac-2': {
+    id: 'mac-2',
+    name: 'Sembradora Neumática de Cañihua',
+    hourMeter: 385,
+    nextMaintenance: 450,
+    createdAt: '2026-06-01T08:15:00.000Z'
+  },
+  'mac-3': {
+    id: 'mac-3',
+    name: 'Cosechadora Combinada Class 530',
+    hourMeter: 820,
+    nextMaintenance: 850,
+    createdAt: '2026-06-01T13:45:00.000Z'
+  }
+};
+
+const MOCK_MACHINE_LOGS = {
+  'log-1': {
+    id: 'log-1',
+    machineId: 'mac-1',
+    machineName: 'Tractor John Deere 5075E',
+    operator: 'Mateo Quispe',
+    labor: 'Preparación de Suelo',
+    quarter: 'Cuartel A-1',
+    hours: 8,
+    fuel: 24,
+    date: '2026-06-08',
+    createdAt: '2026-06-08T10:00:00.000Z'
+  },
+  'log-2': {
+    id: 'log-2',
+    machineId: 'mac-2',
+    machineName: 'Sembradora Neumática de Cañihua',
+    operator: 'Juan Choque',
+    labor: 'Siembra de Grano',
+    quarter: 'Cuartel B-2',
+    hours: 6,
+    fuel: 15,
+    date: '2026-06-09',
+    createdAt: '2026-06-09T11:30:00.000Z'
+  }
+};
+
+const MOCK_MACHINE_MAINT = {
+  'maint-1': {
+    id: 'maint-1',
+    machineId: 'mac-1',
+    machineName: 'Tractor John Deere 5075E',
+    type: 'Preventivo',
+    hoursMeter: 950,
+    supplies: 'Filtros de aire/combustible, lubricantes',
+    cost: 180.00,
+    date: '2026-05-15',
+    createdAt: '2026-05-15T09:00:00.000Z'
+  }
+};
+
+const MOCK_MACHINE_INV = {
+  'inv-1': {
+    id: 'inv-1',
+    machineId: 'mac-1',
+    machineName: 'Tractor John Deere 5075E',
+    invoiceNumber: 'FAC-8493',
+    provider: 'Repuestos Agrícolas El Sur',
+    concept: 'Compra de filtros de repuesto y aceite hidráulico',
+    amount: 180.00,
+    date: '2026-05-15',
+    createdAt: '2026-05-15T09:05:00.000Z'
+  }
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
@@ -172,6 +252,43 @@ function App() {
       }, {
         onlyOnce: true
       });
+
+      // Seed Machinery
+      const machineryRef = ref(db, 'machinery');
+      onValue(machineryRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          console.log("Machinery empty, seeding mock machinery...");
+          set(machineryRef, MOCK_MACHINERY).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Machine Logs
+      const machineLogsRef = ref(db, 'machine_logs');
+      onValue(machineLogsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(machineLogsRef, MOCK_MACHINE_LOGS).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Machine Maintenance
+      const machineMaintRef = ref(db, 'machine_maintenance');
+      onValue(machineMaintRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(machineMaintRef, MOCK_MACHINE_MAINT).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Machine Invoices
+      const machineInvoicesRef = ref(db, 'machine_invoices');
+      onValue(machineInvoicesRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(machineInvoicesRef, MOCK_MACHINE_INV).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
     }
   }, [isAuthenticated]);
 
@@ -228,6 +345,9 @@ function App() {
         )}
         {activeView === 'staff' && (
           <Staff />
+        )}
+        {activeView === 'machinery' && (
+          <Machinery />
         )}
       </main>
     </div>
