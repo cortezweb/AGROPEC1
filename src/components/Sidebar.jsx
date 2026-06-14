@@ -88,6 +88,22 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
+          onClick={() => onViewChange('land-preparation')}
+          style={{
+            ...styles.navLink,
+            ...(activeView === 'land-preparation' ? styles.navLinkActive : {})
+          }}
+        >
+          <svg style={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 22v-8h10M12 14H2v8" />
+            <path d="M22 14c0-2.8-2.2-5-5-5h-2c-1.1 0-2 .9-2 2v3M2 14c0-2.8 2.2-5 5-5h2c1.1 0 2 .9 2 2v3" />
+            <circle cx="7" cy="18" r="3" />
+            <circle cx="17" cy="18" r="3" />
+          </svg>
+          Preparación de Terreno
+        </button>
+
+        <button
           onClick={() => onViewChange('processing')}
           style={{
             ...styles.navLink,

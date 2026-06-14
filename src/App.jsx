@@ -12,6 +12,7 @@ import IrrigationWeather from './views/IrrigationWeather';
 import Warehouse from './views/Warehouse';
 import Campaigns from './views/Campaigns';
 import SoilAnalysis from './views/SoilAnalysis';
+import LandPreparation from './views/LandPreparation';
 import { db } from './firebase';
 import { ref, onValue, set } from 'firebase/database';
 
@@ -402,6 +403,51 @@ const MOCK_SOIL_ANALYSIS = {
   }
 };
 
+const MOCK_LAND_PREPARATION = {
+  'prep-1': {
+    id: 'prep-1',
+    lotId: 'lot-1',
+    lotName: 'Lote Canaviri C-01',
+    activityType: 'Arado',
+    date: '2026-02-16',
+    machineId: 'mac-1',
+    machineName: 'Tractor John Deere 5075E',
+    operatorId: 'staff-2',
+    operatorName: 'Mateo Quispe',
+    hours: 8,
+    cost: 320.00,
+    createdAt: '2026-02-16T10:00:00.000Z'
+  },
+  'prep-2': {
+    id: 'prep-2',
+    lotId: 'lot-1',
+    lotName: 'Lote Canaviri C-01',
+    activityType: 'Rastrado',
+    date: '2026-02-18',
+    machineId: 'mac-2',
+    machineName: 'Sembradora Neumática de Cañihua',
+    operatorId: 'staff-4',
+    operatorName: 'Juan Choque',
+    hours: 6,
+    cost: 240.00,
+    createdAt: '2026-02-18T14:30:00.000Z'
+  },
+  'prep-3': {
+    id: 'prep-3',
+    lotId: 'lot-2',
+    lotName: 'Lote Canaviri C-02',
+    activityType: 'Subsolado',
+    date: '2026-03-12',
+    machineId: 'mac-1',
+    machineName: 'Tractor John Deere 5075E',
+    operatorId: 'staff-2',
+    operatorName: 'Mateo Quispe',
+    hours: 10,
+    cost: 450.00,
+    createdAt: '2026-03-12T09:00:00.000Z'
+  }
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
@@ -562,6 +608,18 @@ function App() {
           });
         }
       }, { onlyOnce: true });
+
+      // Seed Land Preparation
+      const landPrepRef = ref(db, 'land_preparation');
+      onValue(landPrepRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          console.log("Land Preparation empty, seeding mock land preparation...");
+          set(landPrepRef, MOCK_LAND_PREPARATION).catch(err => {
+            console.error("Error seeding mock land preparation to Firebase:", err);
+          });
+        }
+      }, { onlyOnce: true });
     }
   }, [isAuthenticated]);
 
@@ -633,6 +691,9 @@ function App() {
         )}
         {activeView === 'soil-analysis' && (
           <SoilAnalysis />
+        )}
+        {activeView === 'land-preparation' && (
+          <LandPreparation />
         )}
       </main>
     </div>
