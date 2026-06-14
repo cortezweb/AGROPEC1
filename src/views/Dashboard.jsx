@@ -4,17 +4,41 @@ import { ref, onValue } from 'firebase/database';
 
 export default function Dashboard({ onViewChange, onLotSelect }) {
   const [lots, setLots] = useState({});
+  const [cropCycles, setCropCycles] = useState({});
+  const [cropFertilizations, setCropFertilizations] = useState({});
+  const [cropPests, setCropPests] = useState({});
+  const [staffLogs, setStaffLogs] = useState({});
+  const [landPreparation, setLandPreparation] = useState({});
+  const [irrigationLogs, setIrrigationLogs] = useState({});
+  const [salesOrders, setSalesOrders] = useState({});
+  const [invoices, setInvoices] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const lotsRef = ref(db, 'lots');
-    const unsubscribe = onValue(lotsRef, (snapshot) => {
+    const rootRef = ref(db);
+    const unsubscribe = onValue(rootRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        setLots(data);
+        setLots(data.lots || {});
+        setCropCycles(data.crop_cycles || {});
+        setCropFertilizations(data.crop_fertilizations || {});
+        setCropPests(data.crop_pests || {});
+        setStaffLogs(data.staff_logs || {});
+        setLandPreparation(data.land_preparation || {});
+        setIrrigationLogs(data.irrigation_logs || {});
+        setSalesOrders(data.orders || {});
+        setInvoices(data.warehouse_invoices || data.machine_invoices || {});
       } else {
         setLots({});
+        setCropCycles({});
+        setCropFertilizations({});
+        setCropPests({});
+        setStaffLogs({});
+        setLandPreparation({});
+        setIrrigationLogs({});
+        setSalesOrders({});
+        setInvoices({});
       }
       setLoading(false);
     }, (err) => {
@@ -27,24 +51,50 @@ export default function Dashboard({ onViewChange, onLotSelect }) {
   }, []);
 
   const lotList = Object.values(lots);
+  const cycleList = Object.values(cropCycles);
+  const harvestedCycles = cycleList.filter(c => c.status === 'Cosechado');
+  const pestList = Object.values(cropPests);
+  const prepList = Object.values(landPreparation);
+  const fertList = Object.values(cropFertilizations);
+  const slogList = Object.values(staffLogs);
+  const salesList = Object.values(salesOrders);
+  const irrList = Object.values(irrigationLogs);
+  const invList = Object.values(invoices);
 
-  // Aggregated Metrics
-  const totalLots = lotList.length;
-  const totalArea = lotList.reduce((sum, lot) => sum + (lot.area || 0), 0);
-  const avgHumidity = totalLots > 0 
-    ? (lotList.reduce((sum, lot) => sum + (lot.currentHumidity || 0), 0) / totalLots) 
-    : 0;
-  const avgTemp = totalLots > 0 
-    ? (lotList.reduce((sum, lot) => sum + (lot.currentTemp || 0), 0) / totalLots) 
-    : 0;
+  // 1. Total Production
+  const totalProduction = harvestedCycles.reduce((sum, c) => sum + (Number(c.production) || 0), 0);
+
+  // 2. Yield (Rendimiento Medio)
+  const totalHarvestedArea = harvestedCycles.reduce((sum, c) => sum + (lots[c.lotId]?.area || 0), 0);
+  const avgYield = totalHarvestedArea > 0 ? (totalProduction / totalHarvestedArea) : 0;
+
+  // 3. Total Costs (Egresos)
+  const costPreparation = prepList.reduce((sum, p) => sum + (Number(p.cost) || 0), 0);
+  const costFertilization = fertList.reduce((sum, f) => sum + (Number(f.cost) || 0), 0);
+  const costLabor = slogList.reduce((sum, l) => sum + (Number(l.totalCost) || 0), 0);
+  const costIndirect = invList.reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
+  const totalCosts = costPreparation + costFertilization + costLabor + costIndirect;
+
+  // 4. Net Utility (Ingresos - Egresos)
+  const totalRevenues = salesList
+    .filter(o => o.status === 'Entregado' || o.status === 'En tránsito')
+    .reduce((sum, o) => sum + (Number(o.totalPrice) || 0), 0);
+  const netUtility = totalRevenues - totalCosts;
+  const marginPercentage = totalRevenues > 0 ? (netUtility / totalRevenues) * 100 : 0;
+
+  // 5. Water Consumption
+  const waterConsumed = irrList.reduce((sum, l) => sum + (Number(l.waterConsumed) || 0), 0);
+
+  // 6. Active Pest Alerts
+  const activeAlertsCount = pestList.filter(p => p.alert === 'Activa').length;
 
   return (
     <div>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Dashboard de Control de Producción</h1>
-          <p style={styles.subtitle}>Granja Agrícola Canaviri — Resumen Operativo</p>
+          <h1 style={styles.title} className="view-title">Dashboard de Control de Producción</h1>
+          <p style={styles.subtitle} className="view-subtitle">Granja Agrícola Canaviri — Resumen Operativo</p>
         </div>
         <div style={styles.dateBox}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -78,73 +128,119 @@ export default function Dashboard({ onViewChange, onLotSelect }) {
         <>
           {/* Metrics Grid */}
           <div className="metrics-grid">
-            {/* Metric 1 */}
+            {/* Metric 1: Producción Total */}
             <div className="metric-card">
               <div className="metric-header">
-                <span className="metric-title">Lotes de Cañihua</span>
+                <span className="metric-title">Producción Total</span>
                 <div style={{ ...styles.iconBox, backgroundColor: 'var(--primary-light)' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                   </svg>
                 </div>
               </div>
-              <div className="metric-value">{totalLots}</div>
+              <div className="metric-value">{totalProduction.toFixed(1)} <span style={{ fontSize: '18px' }}>t</span></div>
               <div className="metric-footer">
-                <span>Registrados en el sistema</span>
+                <span>Volumen total cosechado</span>
               </div>
             </div>
 
-            {/* Metric 2 */}
+            {/* Metric 2: Rendimiento Medio */}
             <div className="metric-card">
               <div className="metric-header">
-                <span className="metric-title">Área Total Cultivada</span>
+                <span className="metric-title">Rendimiento Medio</span>
                 <div style={{ ...styles.iconBox, backgroundColor: 'var(--secondary-container)' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" strokeWidth="2">
                     <path d="M3 3h18v18H3zM21 9H3M21 15H3M12 3v18" />
                   </svg>
                 </div>
               </div>
-              <div className="metric-value">{totalArea.toFixed(1)} <span style={{ fontSize: '18px' }}>ha</span></div>
+              <div className="metric-value">{avgYield.toFixed(2)} <span style={{ fontSize: '18px' }}>t/ha</span></div>
               <div className="metric-footer">
-                <span>Hectáreas productivas</span>
+                <span>Eficiencia promedio de parcelas</span>
               </div>
             </div>
 
-            {/* Metric 3 */}
+            {/* Metric 3: Costos Generales */}
             <div className="metric-card">
               <div className="metric-header">
-                <span className="metric-title">Humedad Promedio</span>
+                <span className="metric-title">Costos Generales</span>
+                <div style={{ ...styles.iconBox, backgroundColor: 'var(--error-container)' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--error)" strokeWidth="2">
+                    <line x1="12" y1="1" x2="12" y2="23" />
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                </div>
+              </div>
+              <div className="metric-value" style={{ color: 'var(--error)' }}>
+                ${totalCosts.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </div>
+              <div className="metric-footer">
+                <span>Egresos totales acumulados</span>
+              </div>
+            </div>
+
+            {/* Metric 4: Utilidad Neta */}
+            <div className="metric-card">
+              <div className="metric-header">
+                <span className="metric-title">Utilidad Neta</span>
                 <div style={{ ...styles.iconBox, backgroundColor: 'var(--tertiary-container)' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--tertiary)" strokeWidth="2">
-                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
                   </svg>
                 </div>
               </div>
-              <div className="metric-value">{avgHumidity.toFixed(1)}%</div>
+              <div className="metric-value" style={{ color: netUtility >= 0 ? 'var(--tertiary)' : 'var(--error)' }}>
+                ${netUtility.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              </div>
               <div className="metric-footer">
-                <span>Humedad óptima del suelo</span>
+                <span>Margen neto: {marginPercentage.toFixed(1)}%</span>
               </div>
             </div>
 
-            {/* Metric 4 */}
+            {/* Metric 5: Agua Consumida */}
             <div className="metric-card">
               <div className="metric-header">
-                <span className="metric-title">Temperatura Promedio</span>
-                <div style={{ ...styles.iconBox, backgroundColor: '#ffe088' }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#735c00" strokeWidth="2">
-                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+                <span className="metric-title">Consumo de Agua</span>
+                <div style={{ ...styles.iconBox, backgroundColor: '#e6f7ff' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1890ff" strokeWidth="2">
+                    <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z" />
                   </svg>
                 </div>
               </div>
-              <div className="metric-value">{avgTemp.toFixed(1)}°C</div>
+              <div className="metric-value" style={{ color: '#1890ff' }}>
+                {waterConsumed.toLocaleString('es-ES')} <span style={{ fontSize: '18px' }}>L</span>
+              </div>
               <div className="metric-footer">
-                <span>Temperatura media de suelo</span>
+                <span>Total de agua en riego</span>
+              </div>
+            </div>
+
+            {/* Metric 6: Alertas MIP Activas */}
+            <div className="metric-card">
+              <div className="metric-header">
+                <span className="metric-title">Alertas MIP</span>
+                <div style={{ 
+                  ...styles.iconBox, 
+                  backgroundColor: activeAlertsCount > 0 ? 'var(--error-container)' : 'var(--primary-light)'
+                }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
+                    stroke={activeAlertsCount > 0 ? 'var(--error)' : 'var(--primary)'} strokeWidth="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="metric-value" style={{ color: activeAlertsCount > 0 ? 'var(--error)' : 'var(--text-primary)' }}>
+                {activeAlertsCount}
+              </div>
+              <div className="metric-footer">
+                <span>Alertas activas de plagas</span>
               </div>
             </div>
           </div>
 
           {/* Main Dashboard Section */}
-          <div style={styles.mainDashboardSection}>
+          <div style={styles.mainDashboardSection} className="view-main-dashboard-section">
             {/* Chart Card */}
             <div className="card" style={{ flex: 1.5 }}>
               <h3 style={styles.cardTitle}>Histórico de Humedad de Cultivos</h3>
@@ -203,40 +299,38 @@ export default function Dashboard({ onViewChange, onLotSelect }) {
             {/* Notifications Panel */}
             <div className="card" style={{ flex: 1 }}>
               <h3 style={styles.cardTitle}>Alertas & Actividades</h3>
-              <p style={styles.cardSubtitle}>Logs de sensores en tiempo real</p>
+              <p style={styles.cardSubtitle}>Monitoreo en vivo de plagas y riego</p>
               
               <div style={styles.alertList}>
-                <div style={styles.alertItem}>
-                  <div style={{ ...styles.alertDot, backgroundColor: 'var(--primary)' }}></div>
-                  <div style={styles.alertContent}>
-                    <span style={styles.alertTitle}>Riego Automático Activado</span>
-                    <span style={styles.alertTime}>Lote C-01 • Hace 10 min</span>
+                {pestList.filter(p => p.alert === 'Activa').map(p => (
+                  <div key={p.id} style={styles.alertItem}>
+                    <div style={{ ...styles.alertDot, backgroundColor: 'var(--error)' }}></div>
+                    <div style={styles.alertContent}>
+                      <span style={{ ...styles.alertTitle, color: 'var(--error)' }}>⚠️ Plaga Activa: {p.name}</span>
+                      <span style={styles.alertTime}>{p.lotName} • Método: {p.treatment || 'En evaluación'}</span>
+                    </div>
                   </div>
-                </div>
+                ))}
 
-                <div style={styles.alertItem}>
-                  <div style={{ ...styles.alertDot, backgroundColor: 'var(--secondary)' }}></div>
-                  <div style={styles.alertContent}>
-                    <span style={styles.alertTitle}>Humedad en suelo bajo el objetivo</span>
-                    <span style={styles.alertTime}>Lote C-03 • Hace 2 horas</span>
+                {irrList.slice(0, 3).map(l => (
+                  <div key={l.id} style={styles.alertItem}>
+                    <div style={{ ...styles.alertDot, backgroundColor: '#1890ff' }}></div>
+                    <div style={styles.alertContent}>
+                      <span style={styles.alertTitle}>Riego {l.type} finalizado ({l.waterConsumed} L)</span>
+                      <span style={styles.alertTime}>{l.sector} • {l.date}</span>
+                    </div>
                   </div>
-                </div>
+                ))}
 
-                <div style={styles.alertItem}>
-                  <div style={{ ...styles.alertDot, backgroundColor: 'var(--tertiary)' }}></div>
-                  <div style={styles.alertContent}>
-                    <span style={styles.alertTitle}>Control de calidad: Grado A alcanzado</span>
-                    <span style={styles.alertTime}>Lote C-02 • Hace 1 día</span>
+                {pestList.filter(p => p.alert === 'Activa').length === 0 && irrList.length === 0 && (
+                  <div style={styles.alertItem}>
+                    <div style={{ ...styles.alertDot, backgroundColor: 'var(--text-muted)' }}></div>
+                    <div style={styles.alertContent}>
+                      <span style={styles.alertTitle}>No hay eventos recientes</span>
+                      <span style={styles.alertTime}>Granja Canaviri</span>
+                    </div>
                   </div>
-                </div>
-
-                <div style={styles.alertItem}>
-                  <div style={{ ...styles.alertDot, backgroundColor: 'var(--text-muted)' }}></div>
-                  <div style={styles.alertContent}>
-                    <span style={styles.alertTitle}>Lote C-03 registrado en el sistema</span>
-                    <span style={styles.alertTime}>Granja Canaviri • Hace 3 días</span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -250,7 +344,7 @@ export default function Dashboard({ onViewChange, onLotSelect }) {
               </button>
             </div>
             
-            <div style={styles.tableContainer}>
+            <div style={styles.tableContainer} className="view-table-container">
               <table style={styles.table}>
                 <thead>
                   <tr style={styles.tableRowHead}>
@@ -276,8 +370,8 @@ export default function Dashboard({ onViewChange, onLotSelect }) {
                             <div 
                               style={{ 
                                 ...styles.miniProgressFill, 
-                                width: `${Math.min(Math.round((lot.currentHumidity / lot.targetHumidity) * 100), 100)}%`,
-                                backgroundColor: lot.currentHumidity >= lot.targetHumidity ? 'var(--tertiary)' : 'var(--primary)'
+                                width: `${Math.min(Math.round(((lot.currentHumidity || 0) / (lot.targetHumidity || 60)) * 100), 100)}%`,
+                                backgroundColor: (lot.currentHumidity || 0) >= (lot.targetHumidity || 60) ? 'var(--tertiary)' : 'var(--primary)'
                               }}
                             />
                           </div>

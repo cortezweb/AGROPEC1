@@ -148,9 +148,9 @@ export default function LotDetail({ lotId, onBack }) {
         </div>
       </div>
 
-      <div style={styles.titleSection}>
-        <h1 style={styles.title}>{lot.name}</h1>
-        <p style={styles.subtitle}>Ficha técnica agronómica extendida y monitoreo satelital en tiempo real</p>
+      <div style={styles.titleSection} className="view-header">
+        <h1 style={styles.title} className="view-title">{lot.name}</h1>
+        <p style={styles.subtitle} className="view-subtitle">Ficha técnica agronómica extendida y monitoreo satelital en tiempo real</p>
       </div>
 
       <div style={styles.contentGrid}>
@@ -199,32 +199,34 @@ export default function LotDetail({ lotId, onBack }) {
           </div>
 
           {/* Interactive Navigation Tabs for Left Column Bottom */}
-          <div style={styles.tabsContainer}>
-            <button
-              onClick={() => setActiveTab('sensores')}
-              style={{ ...styles.tabBtn, ...(activeTab === 'sensores' ? styles.tabBtnActive : {}) }}
-            >
-              Sensores IoT
-            </button>
-            <button
-              onClick={() => setActiveTab('mapa')}
-              style={{ ...styles.tabBtn, ...(activeTab === 'mapa' ? styles.tabBtnActive : {}) }}
-            >
-              Mapa de Ubicación
-            </button>
-            <button
-              onClick={() => setActiveTab('historial')}
-              style={{ ...styles.tabBtn, ...(activeTab === 'historial' ? styles.tabBtnActive : {}) }}
-            >
-              Historial Productivo
-            </button>
+          <div style={styles.tabsContainer} className="view-tabs-container">
+            <div className="view-tabs">
+              <button
+                onClick={() => setActiveTab('sensores')}
+                style={{ ...styles.tabBtn, ...(activeTab === 'sensores' ? styles.tabBtnActive : {}) }}
+              >
+                Sensores IoT
+              </button>
+              <button
+                onClick={() => setActiveTab('mapa')}
+                style={{ ...styles.tabBtn, ...(activeTab === 'mapa' ? styles.tabBtnActive : {}) }}
+              >
+                Mapa de Ubicación
+              </button>
+              <button
+                onClick={() => setActiveTab('historial')}
+                style={{ ...styles.tabBtn, ...(activeTab === 'historial' ? styles.tabBtnActive : {}) }}
+              >
+                Historial Productivo
+              </button>
+            </div>
           </div>
 
           {/* TAB 1: SENSORES IoT */}
           {activeTab === 'sensores' && (
             <div className="card" style={styles.cardInfo}>
               <h3 style={styles.sectionTitle}>Telemetría de Suelo (Humedad / Temperatura)</h3>
-              <div style={styles.sensorsGrid}>
+              <div style={styles.sensorsGrid} className="view-form-row">
                 <div style={styles.sensorItem}>
                   <div style={styles.sensorLabel}>Humedad Actual</div>
                   <div style={styles.sensorVal}>{lot.currentHumidity?.toFixed(1)}%</div>

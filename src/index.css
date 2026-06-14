@@ -88,6 +88,9 @@ p, span, label, input, button, select, textarea {
 }
 
 @media (max-width: 991px) {
+  .app-container {
+    flex-direction: column;
+  }
   .main-content {
     margin-left: 0;
     padding: 24px;
@@ -449,3 +452,344 @@ p, span, label, input, button, select, textarea {
   font-size: 12px;
   color: var(--text-muted);
 }
+
+/* Responsive Sidebar Navigation Drawer */
+.sidebar-container {
+  width: var(--sidebar-width);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #ffffff;
+  border-right: 1px solid var(--outline);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  z-index: 1000;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 991px) {
+  .sidebar-container {
+    transform: translateX(-100%);
+  }
+  .sidebar-container.open {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+}
+
+.sidebar-overlay.open {
+  display: block;
+}
+
+/* Mobile Top Navbar */
+.mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--outline);
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  width: 100%;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s;
+}
+
+.hamburger-btn:hover {
+  background-color: var(--bg-primary);
+}
+
+@media (max-width: 991px) {
+  .mobile-header {
+    display: flex;
+  }
+}
+
+/* Mobile Login Adaptations */
+@media (max-width: 768px) {
+  .login-card-wrapper {
+    flex-direction: column !important;
+    min-height: auto !important;
+  }
+  .login-left-panel {
+    display: none !important;
+  }
+  .login-right-panel {
+    padding: 40px 24px !important;
+  }
+}
+
+.mobile-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+}
+
+@media (max-width: 991px) {
+  .mobile-close-btn {
+    display: flex;
+  }
+}
+
+/* Adaptación a Escala Móvil (Pantallas <= 768px) */
+@media (max-width: 768px) {
+  /* Reducir el padding de la sección principal para ganar espacio */
+  .main-content {
+    padding: 16px !important;
+  }
+  
+  /* Cabeceras de vista en columna y apiladas */
+  .view-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    border-bottom: 1px solid var(--outline) !important;
+    padding-bottom: 16px !important;
+    margin-bottom: 20px !important;
+    width: 100% !important;
+    display: flex !important;
+  }
+  
+  /* Botones o elementos de acción en cabecera al 100% de ancho */
+  .view-header > button, 
+  .view-header > div:last-child {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  /* Ajuste de escala de títulos y subtítulos */
+  .view-title {
+    font-size: 22px !important;
+    line-height: 1.3 !important;
+  }
+  .view-subtitle {
+    font-size: 13px !important;
+    margin-top: 4px !important;
+  }
+  
+  /* Pestañas con desplazamiento horizontal (Swipeable) */
+  .view-tabs-container {
+    overflow-x: auto !important;
+    display: block !important;
+    width: 100% !important;
+    border-bottom: 1px solid var(--outline) !important;
+    margin-bottom: 20px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Ocultar en Firefox */
+  }
+  .view-tabs-container::-webkit-scrollbar {
+    display: none; /* Ocultar en Chrome/Safari */
+  }
+  .view-tabs {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    width: max-content !important;
+    padding-bottom: 8px !important;
+  }
+  .view-tabs > button {
+    padding: 10px 14px !important;
+    font-size: 13px !important;
+  }
+
+  /* Grid de indicadores (KPIs) en una sola columna */
+  .view-kpi-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-bottom: 24px !important;
+  }
+  .view-kpi-card {
+    padding: 16px !important;
+  }
+  
+  /* Formularios responsivos de una columna */
+  .view-form-split-grid {
+    flex-direction: column !important;
+    gap: 24px !important;
+    display: flex !important;
+  }
+  .view-form-row {
+    flex-direction: column !important;
+    gap: 12px !important;
+    display: flex !important;
+  }
+  .view-form-row > div {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .view-guide-panel {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    padding: 16px !important;
+    margin-top: 8px !important;
+  }
+  
+  /* Habilitar scroll vertical en barra lateral para pantallas cortas */
+  .sidebar-container {
+    overflow-y: auto !important;
+  }
+  
+  /* Reducción de padding en tarjetas */
+  .card, .view-content-card {
+    padding: 16px !important;
+  }
+  
+  /* Paneles divididos en Dashboard en columna */
+  .view-main-dashboard-section {
+    flex-direction: column !important;
+    gap: 20px !important;
+    display: flex !important;
+  }
+  
+  /* Tablas con desplazamiento horizontal táctil */
+  .view-table-container {
+    overflow-x: auto !important;
+    width: 100% !important;
+    border-radius: var(--radius-md) !important;
+    border: 1px solid var(--outline) !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .view-table-container th, 
+  .view-table-container td {
+    padding: 10px 12px !important;
+    font-size: 12px !important;
+  }
+  
+  /* Filtros en una sola fila desplazable (Swipeable Filters) */
+  .view-filters-container {
+    overflow-x: auto !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--outline) !important;
+    padding-bottom: 8px !important;
+  }
+  .view-filters-container::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Lista de detalles en tarjetas de Lotes */
+  .view-card-details {
+    flex-direction: column !important;
+    gap: 12px !important;
+    display: flex !important;
+  }
+  
+  /* Compensar el padding inferior para la barra inferior táctil */
+  .main-content {
+    padding-bottom: 90px !important;
+  }
+
+  /* Desactivar selección de texto táctil en botones y enlaces de control */
+  button, a, select, input, .mobile-nav-item {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Cabecera Móvil Estilo App Nativa */
+  .mobile-header {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 12px rgba(108, 47, 0, 0.03) !important;
+    border-bottom: 1px solid var(--outline) !important;
+  }
+
+  /* Barra de Navegación Inferior Móvil */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--outline);
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 950;
+    box-shadow: 0 -4px 16px rgba(108, 47, 0, 0.04);
+  }
+
+  .mobile-nav-item {
+    background: none;
+    border: none;
+    outline: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    width: 20%;
+    height: 100%;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mobile-nav-item svg {
+    width: 22px;
+    height: 22px;
+    color: var(--text-muted);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.95);
+  }
+
+  .mobile-nav-item.active {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .mobile-nav-item.active svg {
+    transform: translateY(-2px);
+    color: var(--primary);
+  }
+}
+
+/* Ocultar barra inferior en Escritorio */
+.mobile-bottom-nav {
+  display: none;
+}
+

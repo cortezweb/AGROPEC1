@@ -24,8 +24,8 @@ export default function Login({ onLoginSuccess }) {
 
   return (
     <div style={styles.container}>
-      <div style={styles.cardWrapper}>
-        <div style={styles.leftPanel}>
+      <div style={styles.cardWrapper} className="login-card-wrapper">
+        <div style={styles.leftPanel} className="login-left-panel">
           <div style={styles.branding}>
             <svg style={styles.logo} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 2L2 22h20L12 2z" fill="#ffffff" />
@@ -39,7 +39,7 @@ export default function Login({ onLoginSuccess }) {
           </div>
         </div>
 
-        <div style={styles.rightPanel}>
+        <div style={styles.rightPanel} className="login-right-panel">
           <div style={styles.formHeader}>
             <h2 style={styles.title}>Iniciar Sesión</h2>
             <p style={styles.subtitle}>Ingresa tus credenciales para acceder al sistema</p>

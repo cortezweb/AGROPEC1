@@ -251,10 +251,10 @@ export default function SoilAnalysis() {
   return (
     <div>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Módulo de Análisis de Suelo</h1>
-          <p style={styles.subtitle}>Gestión de laboratorios de fertilidad andina, interpretación automatizada y recomendaciones de dosificación</p>
+          <h1 style={styles.title} className="view-title">Módulo de Análisis de Suelo</h1>
+          <p style={styles.subtitle} className="view-subtitle">Gestión de laboratorios de fertilidad andina, interpretación automatizada y recomendaciones de dosificación</p>
         </div>
       </div>
 
@@ -266,19 +266,21 @@ export default function SoilAnalysis() {
       )}
 
       {/* Tabs */}
-      <div style={styles.tabsContainer}>
-        {TABS.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              ...styles.tabLink,
-              ...(activeTab === tab.id ? styles.tabLinkActive : {})
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div style={styles.tabsContainer} className="view-tabs-container">
+        <div className="view-tabs">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                ...styles.tabLink,
+                ...(activeTab === tab.id ? styles.tabLinkActive : {})
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -293,7 +295,7 @@ export default function SoilAnalysis() {
             <div>
               <h3 style={styles.sectionTitle}>Historial Analítico del Suelo</h3>
               <div className="card">
-                <div style={styles.tableContainer}>
+                <div style={styles.tableContainer} className="view-table-container">
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.tableRowHead}>
@@ -356,12 +358,12 @@ export default function SoilAnalysis() {
 
           {/* TAB 2: REGISTRAR ANÁLISIS */}
           {activeTab === 'registrar' && (
-            <div style={styles.formSplitGrid}>
+            <div style={styles.formSplitGrid} className="view-form-split-grid">
               <div style={{ flex: 1.2 }}>
                 <h3 style={styles.sectionTitle}>Ingresar Resultados de Laboratorio</h3>
                 <div className="card" style={{ padding: '24px' }}>
                   <form onSubmit={handleSaveAnalysis}>
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="lotSelect">Lote Muestreado</label>
                         <select
@@ -388,7 +390,7 @@ export default function SoilAnalysis() {
                       </div>
                     </div>
 
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="phInput">Nivel pH</label>
                         <input
@@ -417,7 +419,7 @@ export default function SoilAnalysis() {
                       </div>
                     </div>
 
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="nInput">Nitrógeno (N, ppm)</label>
                         <input
@@ -489,7 +491,7 @@ export default function SoilAnalysis() {
                 </div>
               </div>
 
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1 }} className="view-guide-panel">
                 <h3 style={styles.sectionTitle}>Rangos Críticos de Cañihua</h3>
                 <div className="card" style={{ padding: '24px', backgroundColor: 'var(--tertiary-container)', border: '1px solid var(--tertiary)' }}>
                   <h4 style={{ ...styles.cardTitle, color: 'var(--tertiary-dark)' }}>Parámetros de Suficiencia</h4>

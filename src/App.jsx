@@ -13,6 +13,10 @@ import Warehouse from './views/Warehouse';
 import Campaigns from './views/Campaigns';
 import SoilAnalysis from './views/SoilAnalysis';
 import LandPreparation from './views/LandPreparation';
+import CropCycle from './views/CropCycle';
+import CropProtection from './views/CropProtection';
+import FinanceRentability from './views/FinanceRentability';
+import FieldNotebook from './views/FieldNotebook';
 import { db } from './firebase';
 import { ref, onValue, set } from 'firebase/database';
 
@@ -468,6 +472,111 @@ const MOCK_LAND_PREPARATION = {
   }
 };
 
+const MOCK_CROP_CYCLES = {
+  "cycle-1": {
+    "id": "cycle-1",
+    "lotId": "lot-1",
+    "lotName": "Lote Canaviri C-01",
+    "plantDate": "2026-02-15",
+    "plantMethod": "Mecanizada",
+    "variety": "Cupilapaca",
+    "seedQty": 40.0,
+    "density": 120,
+    "germination": 92.0,
+    "harvestDate": "2026-06-12",
+    "production": 4.8,
+    "grainHumidity": 11.5,
+    "quality": "Premium",
+    "status": "Cosechado",
+    "yield": 1.5,
+    "createdAt": "2026-02-15T08:00:00.000Z"
+  },
+  "cycle-2": {
+    "id": "cycle-2",
+    "lotId": "lot-3",
+    "lotName": "Lote Canaviri C-03",
+    "plantDate": "2026-05-20",
+    "plantMethod": "Manual",
+    "variety": "Saihua",
+    "seedQty": 30.0,
+    "density": 110,
+    "germination": 88.0,
+    "status": "En Crecimiento",
+    "createdAt": "2026-05-20T10:15:00.000Z"
+  }
+};
+
+const MOCK_CROP_FERTILIZATIONS = {
+  "fert-1": {
+    "id": "fert-1",
+    "lotId": "lot-1",
+    "lotName": "Lote Canaviri C-01",
+    "date": "2026-03-25",
+    "fertilizer": "Compost Orgánico (2-1-2)",
+    "dose": 150.0,
+    "method": "Al Voleo",
+    "cost": 180.0,
+    "costPerHa": 56.25,
+    "nApplied": 9.6,
+    "pApplied": 4.8,
+    "kApplied": 9.6,
+    "createdAt": "2026-03-25T09:00:00.000Z"
+  }
+};
+
+const MOCK_CROP_PESTS = {
+  "pest-1": {
+    "id": "pest-1",
+    "lotId": "lot-1",
+    "lotName": "Lote Canaviri C-01",
+    "date": "2026-04-10",
+    "type": "Plaga",
+    "name": "Polilla de la Cañihua (Kcona-Kcona)",
+    "infestation": "Medio",
+    "alert": "Activa",
+    "treatment": "Aplicación de biol orgánico y trampas de luz",
+    "evaluation": "Bueno",
+    "createdAt": "2026-04-10T11:00:00.000Z"
+  }
+};
+
+const MOCK_STAFF_LOGS = {
+  "slog-1": {
+    "id": "slog-1",
+    "staffId": "staff-2",
+    "staffName": "Mateo Quispe",
+    "lotId": "lot-1",
+    "lotName": "Lote Canaviri C-01",
+    "date": "2026-02-15",
+    "activity": "Siembra",
+    "hours": 8,
+    "hourlyRate": 15.0,
+    "totalCost": 120.0,
+    "createdAt": "2026-02-15T17:00:00.000Z"
+  }
+};
+
+const MOCK_WAREHOUSE_STORAGE = {
+  "store-1": {
+    "id": "store-1",
+    "name": "Silo Metálico A-1",
+    "type": "Grano comercial",
+    "stock": 4800,
+    "temperature": 12.4,
+    "humidity": 11.2,
+    "lastUpdate": "2026-06-14T09:00:00.000Z"
+  },
+  "store-2": {
+    "id": "store-2",
+    "name": "Bodega Sacos Semilla",
+    "type": "Semilla",
+    "stock": 250,
+    "temperature": 14.1,
+    "humidity": 10.5,
+    "lastUpdate": "2026-06-14T09:00:00.000Z"
+  }
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
@@ -649,8 +758,78 @@ function App() {
           });
         }
       }, { onlyOnce: true });
+
+      // Seed Crop Cycles
+      const cropCyclesRef = ref(db, 'crop_cycles');
+      onValue(cropCyclesRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          console.log("Crop Cycles empty, seeding mock crop cycles...");
+          set(cropCyclesRef, MOCK_CROP_CYCLES).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Crop Fertilizations
+      const cropFertRef = ref(db, 'crop_fertilizations');
+      onValue(cropFertRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(cropFertRef, MOCK_CROP_FERTILIZATIONS).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Crop Pests
+      const cropPestsRef = ref(db, 'crop_pests');
+      onValue(cropPestsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(cropPestsRef, MOCK_CROP_PESTS).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Staff Logs
+      const staffLogsRef = ref(db, 'staff_logs');
+      onValue(staffLogsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(staffLogsRef, MOCK_STAFF_LOGS).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
+      // Seed Warehouse Storage
+      const warehouseStorageRef = ref(db, 'warehouse_storage');
+      onValue(warehouseStorageRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(warehouseStorageRef, MOCK_WAREHOUSE_STORAGE).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
     }
   }, [isAuthenticated]);
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const getViewTitle = (view) => {
+    switch (view) {
+      case 'dashboard': return 'Dashboard';
+      case 'lots': return 'Lotes';
+      case 'lot-detail': return 'Detalle de Lote';
+      case 'campaigns': return 'Campañas';
+      case 'soil-analysis': return 'Análisis de Suelo';
+      case 'land-preparation': return 'Prep. de Terreno';
+      case 'crop-cycle': return 'Siembra y Cosecha';
+      case 'crop-protection': return 'Protección y Nutrición';
+      case 'field-notebook': return 'Cuaderno de Campo';
+      case 'irrigation': return 'Sistema de Riego';
+      case 'machinery': return 'Maquinaria';
+      case 'staff': return 'Personal';
+      case 'warehouse': return 'Bodegas y Stock';
+      case 'processing': return 'Procesamiento';
+      case 'sales': return 'Ventas';
+      case 'finance-rentability': return 'Costos y ROI';
+      default: return 'Canaviri';
+    }
+  };
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
@@ -660,6 +839,7 @@ function App() {
     setIsAuthenticated(false);
     setActiveView('dashboard');
     setSelectedLotId(null);
+    setIsSidebarOpen(false);
   };
 
   if (!isAuthenticated) {
@@ -672,7 +852,47 @@ function App() {
         activeView={activeView} 
         onViewChange={setActiveView} 
         onLogout={handleLogout} 
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
       />
+      {isSidebarOpen && (
+        <div 
+          className="sidebar-overlay open" 
+          onClick={() => setIsSidebarOpen(false)} 
+        />
+      )}
+      <div className="mobile-header">
+        <button className="hamburger-btn" onClick={() => setIsSidebarOpen(true)} aria-label="Abrir menú">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <span style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, color: 'var(--primary)', fontSize: '18px' }}>
+          {getViewTitle(activeView)}
+        </span>
+        <div 
+          className="mobile-avatar" 
+          onClick={() => setIsSidebarOpen(true)}
+          style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            backgroundColor: 'var(--primary-light)',
+            color: 'var(--primary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 700,
+            fontSize: '13px',
+            cursor: 'pointer',
+            border: '1px solid var(--primary)'
+          }}
+        >
+          A
+        </div>
+      </div>
       <main className="main-content">
         {activeView === 'dashboard' && (
           <Dashboard 
@@ -724,7 +944,74 @@ function App() {
         {activeView === 'land-preparation' && (
           <LandPreparation />
         )}
+        {activeView === 'crop-cycle' && (
+          <CropCycle />
+        )}
+        {activeView === 'crop-protection' && (
+          <CropProtection />
+        )}
+        {activeView === 'field-notebook' && (
+          <FieldNotebook />
+        )}
+        {activeView === 'finance-rentability' && (
+          <FinanceRentability />
+        )}
       </main>
+
+      {/* Barra de Navegación Inferior para Celulares */}
+      <div className="mobile-bottom-nav">
+        <button 
+          className={`mobile-nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
+          onClick={() => setActiveView('dashboard')}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          <span>Inicio</span>
+        </button>
+        <button 
+          className={`mobile-nav-item ${(activeView === 'lots' || activeView === 'lot-detail') ? 'active' : ''}`}
+          onClick={() => setActiveView('lots')}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 17 12 22 22 17" />
+            <polyline points="2 12 12 17 22 12" />
+          </svg>
+          <span>Lotes</span>
+        </button>
+        <button 
+          className={`mobile-nav-item ${activeView === 'irrigation' ? 'active' : ''}`}
+          onClick={() => setActiveView('irrigation')}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22a7 7 0 0 0 7-7c0-4.3-7-11-7-11S5 10.7 5 15a7 7 0 0 0 7 7z" />
+          </svg>
+          <span>Riego</span>
+        </button>
+        <button 
+          className={`mobile-nav-item ${activeView === 'warehouse' ? 'active' : ''}`}
+          onClick={() => setActiveView('warehouse')}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+            <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+          </svg>
+          <span>Bodega</span>
+        </button>
+        <button 
+          className={`mobile-nav-item ${isSidebarOpen ? 'active' : ''}`}
+          onClick={() => setIsSidebarOpen(true)}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+          <span>Menú</span>
+        </button>
+      </div>
     </div>
   );
 }

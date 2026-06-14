@@ -321,10 +321,10 @@ export default function Campaigns() {
   return (
     <div>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Módulo de Campañas Agrícolas</h1>
-          <p style={styles.subtitle}>Planificación estratégica, control de ciclo fenológico y calendario de cultivos de Cañihua</p>
+          <h1 style={styles.title} className="view-title">Módulo de Campañas Agrícolas</h1>
+          <p style={styles.subtitle} className="view-subtitle">Planificación estratégica, control de ciclo fenológico y calendario de cultivos de Cañihua</p>
         </div>
       </div>
 
@@ -366,19 +366,21 @@ export default function Campaigns() {
       </div>
 
       {/* Tabs */}
-      <div style={styles.tabsContainer}>
-        {TABS.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              ...styles.tabLink,
-              ...(activeTab === tab.id ? styles.tabLinkActive : {})
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div style={styles.tabsContainer} className="view-tabs-container">
+        <div className="view-tabs">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                ...styles.tabLink,
+                ...(activeTab === tab.id ? styles.tabLinkActive : {})
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -393,7 +395,7 @@ export default function Campaigns() {
             <div>
               <h3 style={styles.sectionTitle}>Maestro de Ciclos de Cultivo</h3>
               <div className="card">
-                <div style={styles.tableContainer}>
+                <div style={styles.tableContainer} className="view-table-container">
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.tableRowHead}>
@@ -448,12 +450,12 @@ export default function Campaigns() {
 
           {/* TAB 2: CREAR CAMPAÑA */}
           {activeTab === 'crear' && (
-            <div style={styles.formSplitGrid}>
+            <div style={styles.formSplitGrid} className="view-form-split-grid">
               <div style={{ flex: 1.2 }}>
                 <h3 style={styles.sectionTitle}>Registrar Nuevo Ciclo Agrícola</h3>
                 <div className="card" style={{ padding: '24px' }}>
                   <form onSubmit={handleCreateCampaign}>
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1.5 }}>
                         <label className="form-label" htmlFor="campName">Nombre de la Campaña</label>
                         <input
@@ -480,7 +482,7 @@ export default function Campaigns() {
                       </div>
                     </div>
 
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="campStart">Fecha de Inicio</label>
                         <input
@@ -505,7 +507,7 @@ export default function Campaigns() {
                       </div>
                     </div>
 
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="campCrop">Cultivo Variedad</label>
                         <select
@@ -552,7 +554,7 @@ export default function Campaigns() {
                 </div>
               </div>
 
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1 }} className="view-guide-panel">
                 <h3 style={styles.sectionTitle}>Políticas Agronómicas</h3>
                 <div className="card" style={{ padding: '24px', backgroundColor: 'var(--tertiary-container)', border: '1px solid var(--tertiary)' }}>
                   <h4 style={{ ...styles.cardTitle, color: 'var(--tertiary-dark)' }}>Fases de Planificación</h4>
@@ -615,7 +617,7 @@ export default function Campaigns() {
                     </div>
                   </div>
 
-                  <div style={styles.row}>
+                  <div style={styles.row} className="view-form-row">
                     <div style={styles.detailBox}>
                       <span style={styles.detailLabel}>FECHA INICIO</span>
                       <span style={styles.detailValue}>{selectedCamp.startDate}</span>

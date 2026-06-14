@@ -57,10 +57,10 @@ export default function Processing() {
   return (
     <div>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Centro de Procesamiento y Empaque</h1>
-          <p style={styles.subtitle}>Supervisa la limpieza, secado, selección y envasado del grano de Cañihua</p>
+          <h1 style={styles.title} className="view-title">Centro de Procesamiento y Empaque</h1>
+          <p style={styles.subtitle} className="view-subtitle">Supervisa la limpieza, secado, selección y envasado del grano de Cañihua</p>
         </div>
       </div>
 
@@ -124,7 +124,7 @@ export default function Processing() {
               </p>
             </div>
           ) : (
-            <div style={styles.tableContainer}>
+            <div style={styles.tableContainer} className="view-table-container">
               <table style={styles.table}>
                 <thead>
                   <tr style={styles.tableRowHead}>

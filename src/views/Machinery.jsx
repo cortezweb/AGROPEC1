@@ -261,10 +261,10 @@ export default function Machinery() {
   return (
     <div>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Módulo de Maquinaria Agrícola</h1>
-          <p style={styles.subtitle}>Gestión de faenas, control de horómetros, calculadora de costo por hora e historial de mantenimiento</p>
+          <h1 style={styles.title} className="view-title">Módulo de Maquinaria Agrícola</h1>
+          <p style={styles.subtitle} className="view-subtitle">Gestión de faenas, control de horómetros, calculadora de costo por hora e historial de mantenimiento</p>
         </div>
       </div>
 
@@ -295,19 +295,21 @@ export default function Machinery() {
       )}
 
       {/* Tabs */}
-      <div style={styles.tabsContainer}>
-        {TABS.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              ...styles.tabLink,
-              ...(activeTab === tab.id ? styles.tabLinkActive : {})
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div style={styles.tabsContainer} className="view-tabs-container">
+        <div className="view-tabs">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                ...styles.tabLink,
+                ...(activeTab === tab.id ? styles.tabLinkActive : {})
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -328,7 +330,7 @@ export default function Machinery() {
               </div>
               
               <div className="card">
-                <div style={styles.tableContainer}>
+                <div style={styles.tableContainer} className="view-table-container">
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.tableRowHead}>
@@ -373,7 +375,7 @@ export default function Machinery() {
               <div style={{ flex: 1.3, display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <h3 style={styles.sectionTitle}>Costo Operativo por Máquina</h3>
                 <div className="card">
-                  <div style={styles.tableContainer}>
+                  <div style={styles.tableContainer} className="view-table-container">
                     <table style={styles.table}>
                       <thead>
                         <tr style={styles.tableRowHead}>
@@ -481,7 +483,7 @@ export default function Machinery() {
               </div>
 
               <div className="card">
-                <div style={styles.tableContainer}>
+                <div style={styles.tableContainer} className="view-table-container">
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.tableRowHead}>
@@ -534,7 +536,7 @@ export default function Machinery() {
               </div>
 
               <div className="card">
-                <div style={styles.tableContainer}>
+                <div style={styles.tableContainer} className="view-table-container">
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.tableRowHead}>
@@ -639,7 +641,7 @@ export default function Machinery() {
 
               {/* Analytical Table */}
               <div className="card">
-                <div style={styles.tableContainer}>
+                <div style={styles.tableContainer} className="view-table-container">
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.tableRowHead}>
@@ -707,7 +709,7 @@ export default function Machinery() {
                 />
               </div>
 
-              <div style={styles.row}>
+              <div style={styles.row} className="view-form-row">
                 <div className="form-group" style={{ flex: 1 }}>
                   <label className="form-label" htmlFor="faenaLabor">Labor Realizada</label>
                   <input
@@ -734,7 +736,7 @@ export default function Machinery() {
                 </div>
               </div>
 
-              <div style={styles.row}>
+              <div style={styles.row} className="view-form-row">
                 <div className="form-group" style={{ flex: 1 }}>
                   <label className="form-label" htmlFor="faenaHours">Horas Trabajadas</label>
                   <input
@@ -885,7 +887,7 @@ export default function Machinery() {
                 </select>
               </div>
 
-              <div style={styles.row}>
+              <div style={styles.row} className="view-form-row">
                 <div className="form-group" style={{ flex: 1 }}>
                   <label className="form-label" htmlFor="invNumber">N° Factura</label>
                   <input

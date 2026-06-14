@@ -352,16 +352,16 @@ export default function IrrigationSystem() {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <header style={styles.header}>
+      <header style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Sistema de Riego</h1>
-          <p style={styles.subtitle}>Control de riego, monitoreo de consumo hídrico y estación meteorológica</p>
+          <h1 style={styles.title} className="view-title">Sistema de Riego</h1>
+          <p style={styles.subtitle} className="view-subtitle">Control de riego, monitoreo de consumo hídrico y estación meteorológica</p>
         </div>
       </header>
 
       {/* Tabs */}
-      <div style={styles.tabsContainer}>
-        <div style={styles.tabs}>
+      <div style={styles.tabsContainer} className="view-tabs-container">
+        <div style={styles.tabs} className="view-tabs">
           {TABS.map(tab => (
             <button
               key={tab.id}
@@ -380,11 +380,11 @@ export default function IrrigationSystem() {
       {/* Content */}
       <div style={styles.contentCard}>
         {activeTab === 'programacion' && (
-          <div style={styles.formSplitGrid}>
+          <div style={styles.formSplitGrid} className="view-form-split-grid">
             <div style={{ flex: 1, minWidth: '300px' }}>
               <h2 style={styles.sectionTitle}>Programar / Registrar Operación de Riego</h2>
               <form onSubmit={handleCreateProgram} style={styles.form}>
-                <div style={styles.row}>
+                <div style={styles.row} className="view-form-row">
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={styles.label}>Lote / Sector *</label>
                     <select
@@ -414,7 +414,7 @@ export default function IrrigationSystem() {
                   </div>
                 </div>
 
-                <div style={styles.row}>
+                <div style={styles.row} className="view-form-row">
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={styles.label}>Fecha *</label>
                     <input
@@ -441,7 +441,7 @@ export default function IrrigationSystem() {
                   </div>
                 </div>
 
-                <div style={styles.row}>
+                <div style={styles.row} className="view-form-row">
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={styles.label}>Duración (Horas) *</label>
                     <input
@@ -476,7 +476,7 @@ export default function IrrigationSystem() {
               </form>
             </div>
 
-            <div style={{ flex: 1, minWidth: '300px' }}>
+            <div style={{ flex: 1, minWidth: '300px' }} className="view-guide-panel">
               <h2 style={styles.sectionTitle}>Cola de Riegos Programados</h2>
               <p style={styles.guideText}>Válvulas IoT pendientes de apertura automática o disparo manual</p>
 
@@ -520,24 +520,24 @@ export default function IrrigationSystem() {
                 <p>No se han registrado riegos históricos.</p>
               </div>
             ) : (
-              <div style={styles.tableContainer}>
+              <div style={styles.tableContainer} className="view-table-container">
                 <table style={styles.table}>
                   <thead>
                     <tr style={styles.tableRowHead}>
                       <th style={styles.th}>Fecha</th>
                       <th style={styles.th}>Lote / Sector</th>
                       <th style={styles.th}>Método</th>
-                      <th style={styles.th} style={{ textAlign: 'right' }}>Horas</th>
-                      <th style={styles.th} style={{ textAlign: 'right' }}>Caudal</th>
-                      <th style={styles.th} style={{ textAlign: 'right' }}>Agua Consumida</th>
-                      <th style={styles.th} style={{ textAlign: 'right' }}>Lámina (mm)</th>
+                      <th style={{ ...styles.th, textAlign: 'right' }}>Horas</th>
+                      <th style={{ ...styles.th, textAlign: 'right' }}>Caudal</th>
+                      <th style={{ ...styles.th, textAlign: 'right' }}>Agua Consumida</th>
+                      <th style={{ ...styles.th, textAlign: 'right' }}>Lámina (mm)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {logList.map(log => (
                       <tr key={log.id} style={styles.tableRowBody}>
                         <td style={styles.td}>{log.date}</td>
-                        <td style={styles.td} style={{ fontWeight: 600 }}>{log.sector}</td>
+                        <td style={{ ...styles.td, fontWeight: 600 }}>{log.sector}</td>
                         <td style={styles.td}>
                           <span style={{
                             ...styles.badge,
@@ -546,12 +546,12 @@ export default function IrrigationSystem() {
                             {log.type}
                           </span>
                         </td>
-                        <td style={styles.td} style={{ textAlign: 'right' }}>{log.hours} hrs</td>
-                        <td style={styles.td} style={{ textAlign: 'right' }}>{log.caudal} L/min</td>
-                        <td style={styles.td} style={{ textAlign: 'right', fontWeight: 600 }}>
+                        <td style={{ ...styles.td, textAlign: 'right' }}>{log.hours} hrs</td>
+                        <td style={{ ...styles.td, textAlign: 'right' }}>{log.caudal} L/min</td>
+                        <td style={{ ...styles.td, textAlign: 'right', fontWeight: 600 }}>
                           {(log.waterConsumed || 0).toLocaleString()} L
                         </td>
-                        <td style={styles.td} style={{ textAlign: 'right', fontWeight: 600, color: 'var(--primary)' }}>
+                        <td style={{ ...styles.td, textAlign: 'right', fontWeight: 600, color: 'var(--primary)' }}>
                           {log.mmAccumulated || 0} mm
                         </td>
                       </tr>
@@ -566,30 +566,30 @@ export default function IrrigationSystem() {
         {activeTab === 'consumo' && (
           <div style={styles.metricsContainer}>
             {/* KPI Grid */}
-            <div style={styles.kpiGrid}>
-              <div style={styles.kpiCard}>
+            <div style={styles.kpiGrid} className="view-kpi-grid">
+              <div style={styles.kpiCard} className="view-kpi-card">
                 <span style={styles.kpiLabel}>Consumo Hídrico Acumulado</span>
                 <span style={styles.kpiValue}>{totalWaterConsumed.toLocaleString()} L</span>
                 <span style={styles.kpiDesc}>Volumen total de agua captada</span>
               </div>
-              <div style={styles.kpiCard}>
+              <div style={styles.kpiCard} className="view-kpi-card">
                 <span style={styles.kpiLabel}>Distribución Goteo</span>
                 <span style={styles.kpiValue}>{(methodConsumption['Goteo'] || 0).toLocaleString()} L</span>
                 <span style={styles.kpiDesc}>Eficiencia de aplicación del 90%</span>
               </div>
-              <div style={styles.kpiCard}>
+              <div style={styles.kpiCard} className="view-kpi-card">
                 <span style={styles.kpiLabel}>Distribución Aspersión</span>
                 <span style={styles.kpiValue}>{(methodConsumption['Aspersión'] || 0).toLocaleString()} L</span>
                 <span style={styles.kpiDesc}>Eficiencia de aplicación del 70%</span>
               </div>
-              <div style={styles.kpiCard}>
+              <div style={styles.kpiCard} className="view-kpi-card">
                 <span style={styles.kpiLabel}>Ahorro Hídrico Estimado</span>
                 <span style={{ ...styles.kpiValue, color: 'var(--tertiary)' }}>{estimatedSaved.toLocaleString()} L</span>
                 <span style={styles.kpiDesc}>Agua conservada por uso de Goteo</span>
               </div>
             </div>
 
-            <div style={styles.row}>
+            <div style={styles.row} className="view-form-row">
               {/* Consumption by lot chart */}
               <div style={styles.chartCard}>
                 <h3 style={styles.chartTitle}>Volumen de Riego por Sector</h3>

@@ -124,10 +124,10 @@ export default function LotManagement({ onLotSelect }) {
   return (
     <div>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Gestión de Cosechas y Lotes</h1>
-          <p style={styles.subtitle}>Supervisa y registra el estado de cultivo de Cañihua</p>
+          <h1 style={styles.title} className="view-title">Gestión de Cosechas y Lotes</h1>
+          <p style={styles.subtitle} className="view-subtitle">Supervisa y registra el estado de cultivo de Cañihua</p>
         </div>
         <button onClick={() => setIsModalOpen(true)} className="btn btn-primary">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -149,6 +149,22 @@ export default function LotManagement({ onLotSelect }) {
           </p>
         </div>
       )}
+
+      {/* Filtros de Estado */}
+      <div style={styles.filtersContainer} className="view-filters-container">
+        {['Todos', 'Siembra', 'Crecimiento', 'Cosecha', 'Procesamiento', 'Empacado'].map(status => (
+          <button
+            key={status}
+            onClick={() => setFilterStatus(status)}
+            style={{
+              ...styles.filterTab,
+              ...(filterStatus === status ? styles.filterTabActive : {})
+            }}
+          >
+            {status}
+          </button>
+        ))}
+      </div>
 
       {/* Loading State */}
       {loading ? (
@@ -176,7 +192,7 @@ export default function LotManagement({ onLotSelect }) {
 
                   <h3 style={styles.lotName}>{lot.name}</h3>
 
-                  <div style={styles.cardDetails}>
+                  <div style={styles.cardDetails} className="view-card-details">
                     <div style={styles.detailItem}>
                       <span style={styles.detailLabel}>ÁREA</span>
                       <span style={styles.detailVal}>{lot.area} Hectáreas</span>

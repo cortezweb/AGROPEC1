@@ -7,7 +7,8 @@ const TABS = [
   { id: 'entrada', label: 'Guía de Entrada' },
   { id: 'salida', label: 'Guía de Salida' },
   { id: 'movimientos', label: 'Historial de Movimientos' },
-  { id: 'facturas', label: 'Facturas y Pagos' }
+  { id: 'facturas', label: 'Facturas y Pagos' },
+  { id: 'almacen', label: 'Almacén de Granos (Silos)' }
 ];
 
 const WAREHOUSES = ['Bodega Principal', 'Bodega Agroquímicos', 'Bodega Repuestos'];
@@ -20,6 +21,14 @@ export default function Warehouse() {
   const [invoices, setInvoices] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Silo Storage State
+  const [storage, setStorage] = useState({});
+  const [selectedStorageId, setSelectedStorageId] = useState('');
+  const [storageTemp, setStorageTemp] = useState('12.0');
+  const [storageHum, setStorageHum] = useState('11.0');
+  const [storageStock, setStorageStock] = useState('');
+  const [submittingStorage, setSubmittingStorage] = useState(false);
 
   // Modal Traspaso State
   const [isTraspasoModalOpen, setIsTraspasoModalOpen] = useState(false);
@@ -58,6 +67,7 @@ export default function Warehouse() {
         setInventory(data.warehouse_inventory || {});
         setMovements(data.warehouse_movements || {});
         setInvoices(data.warehouse_invoices || {});
+        setStorage(data.warehouse_storage || {});
       }
       setLoading(false);
     }, (err) => {
@@ -74,13 +84,43 @@ export default function Warehouse() {
   const invoiceList = Object.values(invoices);
 
   // Set default product IDs for forms once inventory is loaded
+  const storageList = Object.values(storage);
   useEffect(() => {
     if (invList.length > 0) {
       if (!entProdId) setEntProdId(invList[0].id);
       if (!salProdId) setSalProdId(invList[0].id);
       if (!traspasoProdId) setTraspasoProdId(invList[0].id);
     }
-  }, [inventory]);
+    if (storageList.length > 0 && !selectedStorageId) {
+      setSelectedStorageId(storageList[0].id);
+      setStorageStock(storageList[0].stock.toString());
+      setStorageTemp(storageList[0].temperature.toString());
+      setStorageHum(storageList[0].humidity.toString());
+    }
+  }, [inventory, storage]);
+
+  const handleSaveStorage = (e) => {
+    e.preventDefault();
+    if (!selectedStorageId || !storageStock || !storageTemp || !storageHum) {
+      alert("Por favor complete todos los campos obligatorios.");
+      return;
+    }
+    setSubmittingStorage(true);
+    const storageRef = ref(db, `warehouse_storage/${selectedStorageId}`);
+    update(storageRef, {
+      stock: parseFloat(storageStock),
+      temperature: parseFloat(storageTemp),
+      humidity: parseFloat(storageHum),
+      lastUpdate: new Date().toISOString()
+    }).then(() => {
+      alert("¡Depósito actualizado exitosamente!");
+      setSubmittingStorage(false);
+    }).catch(err => {
+      console.error(err);
+      alert("Error al actualizar depósito.");
+      setSubmittingStorage(false);
+    });
+  };
 
   // Handle Guía de Entrada
   const handleSaveEntrada = (e) => {
@@ -342,10 +382,10 @@ export default function Warehouse() {
   return (
     <div>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Módulo de Bodegas y Stock</h1>
-          <p style={styles.subtitle}>Gestión integral de inventario en tiempo real, movimientos, traspasos y control de pagos</p>
+          <h1 style={styles.title} className="view-title">Módulo de Bodegas y Stock</h1>
+          <p style={styles.subtitle} className="view-subtitle">Gestión integral de inventario en tiempo real, movimientos, traspasos y control de pagos</p>
         </div>
         <button onClick={() => setIsTraspasoModalOpen(true)} className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           📦 Registrar Traspaso
@@ -386,19 +426,21 @@ export default function Warehouse() {
       )}
 
       {/* Tabs */}
-      <div style={styles.tabsContainer}>
-        {TABS.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              ...styles.tabLink,
-              ...(activeTab === tab.id ? styles.tabLinkActive : {})
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div style={styles.tabsContainer} className="view-tabs-container">
+        <div className="view-tabs">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                ...styles.tabLink,
+                ...(activeTab === tab.id ? styles.tabLinkActive : {})
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -413,7 +455,7 @@ export default function Warehouse() {
             <div>
               <h3 style={styles.sectionTitle}>Existencias Totales en Almacén</h3>
               <div className="card">
-                <div style={styles.tableContainer}>
+                <div style={styles.tableContainer} className="view-table-container">
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.tableRowHead}>
@@ -467,12 +509,12 @@ export default function Warehouse() {
 
           {/* TAB 2: GUÍA DE ENTRADA */}
           {activeTab === 'entrada' && (
-            <div style={styles.formSplitGrid}>
+            <div style={styles.formSplitGrid} className="view-form-split-grid">
               <div style={{ flex: 1.2 }}>
                 <h3 style={styles.sectionTitle}>Registrar Guía de Ingreso</h3>
                 <div className="card" style={{ padding: '24px' }}>
                   <form onSubmit={handleSaveEntrada}>
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="entGuia">N° Guía de Entrada</label>
                         <input
@@ -540,7 +582,7 @@ export default function Warehouse() {
                         </select>
                       </div>
                     ) : (
-                      <div style={styles.row}>
+                      <div style={styles.row} className="view-form-row">
                         <div className="form-group" style={{ flex: 1.5 }}>
                           <label className="form-label" htmlFor="entNewName">Nombre del Nuevo Producto</label>
                           <input
@@ -567,7 +609,7 @@ export default function Warehouse() {
                       </div>
                     )}
 
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="entQty">Cantidad a Ingresar</label>
                         <input
@@ -593,7 +635,7 @@ export default function Warehouse() {
                       </div>
                     </div>
 
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="entDate">Fecha Ingreso</label>
                         <input
@@ -623,7 +665,7 @@ export default function Warehouse() {
                 </div>
               </div>
 
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1 }} className="view-guide-panel">
                 <h3 style={styles.sectionTitle}>Distribución y Zonas</h3>
                 <div className="card" style={{ padding: '24px', backgroundColor: 'var(--tertiary-container)', border: '1px solid var(--tertiary)' }}>
                   <h4 style={{ ...styles.cardTitle, color: 'var(--tertiary-dark)' }}>Ubicación de Materiales</h4>
@@ -642,7 +684,7 @@ export default function Warehouse() {
 
           {/* TAB 3: GUÍA DE SALIDA */}
           {activeTab === 'salida' && (
-            <div style={styles.formSplitGrid}>
+            <div style={styles.formSplitGrid} className="view-form-split-grid">
               <div style={{ flex: 1.2 }}>
                 <h3 style={styles.sectionTitle}>Registrar Despacho de Materiales</h3>
                 <div className="card" style={{ padding: '24px' }}>
@@ -663,7 +705,7 @@ export default function Warehouse() {
                       </select>
                     </div>
 
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="salQty">Cantidad a Despachar</label>
                         <input
@@ -690,7 +732,7 @@ export default function Warehouse() {
                       </div>
                     </div>
 
-                    <div style={styles.row}>
+                    <div style={styles.row} className="view-form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label className="form-label" htmlFor="salResp">Responsable del Retiro</label>
                         <input
@@ -722,7 +764,7 @@ export default function Warehouse() {
                 </div>
               </div>
 
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1 }} className="view-guide-panel">
                 <h3 style={styles.sectionTitle}>Reglas de Salida</h3>
                 <div className="card" style={{ padding: '24px', backgroundColor: '#fffbe6', border: '1px solid #ffe58f' }}>
                   <h4 style={{ ...styles.cardTitle, color: '#d46b08' }}>Validación de Stock Obligatoria</h4>
@@ -740,7 +782,7 @@ export default function Warehouse() {
             <div>
               <h3 style={styles.sectionTitle}>Historial de Movimientos de Almacén</h3>
               <div className="card">
-                <div style={styles.tableContainer}>
+                <div style={styles.tableContainer} className="view-table-container">
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.tableRowHead}>
@@ -791,7 +833,7 @@ export default function Warehouse() {
             <div>
               <h3 style={styles.sectionTitle}>Comprobantes y Facturas por Pagar</h3>
               <div className="card">
-                <div style={styles.tableContainer}>
+                <div style={styles.tableContainer} className="view-table-container">
                   <table style={styles.table}>
                     <thead>
                       <tr style={styles.tableRowHead}>
@@ -846,6 +888,255 @@ export default function Warehouse() {
               </div>
             </div>
           )}
+
+          {/* TAB 6: ALMACEN DE GRANOS (SILOS) */}
+          {activeTab === 'almacen' && (
+            <div>
+              {/* KPIs */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: '16px',
+                marginBottom: '32px'
+              }}>
+                <div style={{
+                  backgroundColor: 'var(--bg-primary)',
+                  padding: '20px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--outline)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px'
+                }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Stock Grano Comercial</span>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: 'var(--primary)' }}>
+                    {storageList.filter(s => s.type === 'Grano comercial').reduce((sum, s) => sum + (s.stock || 0), 0).toLocaleString()} kg
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>Destinado a ventas B2B</span>
+                </div>
+
+                <div style={{
+                  backgroundColor: 'var(--bg-primary)',
+                  padding: '20px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--outline)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px'
+                }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Stock Semilla Reservada</span>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: 'var(--primary)' }}>
+                    {storageList.filter(s => s.type === 'Semilla').reduce((sum, s) => sum + (s.stock || 0), 0).toLocaleString()} kg
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>Reservas para próximas siembras</span>
+                </div>
+
+                <div style={{
+                  backgroundColor: 'var(--bg-primary)',
+                  padding: '20px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--outline)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px'
+                }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Temperatura Media Silos</span>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: 'var(--primary)' }}>
+                    {storageList.length > 0 ? (storageList.reduce((sum, s) => sum + (s.temperature || 0), 0) / storageList.length).toFixed(1) : 0}°C
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>Temperatura promedio de granos</span>
+                </div>
+
+                <div style={{
+                  backgroundColor: 'var(--bg-primary)',
+                  padding: '20px',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--outline)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px'
+                }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Humedad Media Silos</span>
+                  <span style={{ fontSize: '24px', fontWeight: 700, color: 'var(--primary)' }}>
+                    {storageList.length > 0 ? (storageList.reduce((sum, s) => sum + (s.humidity || 0), 0) / storageList.length).toFixed(1) : 0}%
+                  </span>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>Humedad promedio de granos</span>
+                </div>
+              </div>
+
+              {/* Form Split */}
+              <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1.5, minWidth: '300px' }}>
+                  <h3 style={styles.sectionTitle}>Silos y Depósitos de Almacenamiento</h3>
+                  <div className="card">
+                    <div style={styles.tableContainer} className="view-table-container">
+                      <table style={styles.table}>
+                        <thead>
+                          <tr style={styles.tableRowHead}>
+                            <th style={styles.th}>ID / Silo</th>
+                            <th style={styles.th}>Tipo Contenido</th>
+                            <th style={{ ...styles.th, textAlign: 'right' }}>Stock Actual</th>
+                            <th style={{ ...styles.th, textAlign: 'right' }}>Temperatura (°C)</th>
+                            <th style={{ ...styles.th, textAlign: 'right' }}>Humedad (%)</th>
+                            <th style={styles.th}>Última Medición</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {storageList.map(st => (
+                            <tr key={st.id} style={styles.tableRowBody}>
+                              <td style={{ ...styles.td, fontWeight: 600 }}>{st.name}</td>
+                              <td style={styles.td}>
+                                <span style={{
+                                  display: 'inline-block',
+                                  padding: '4px 10px',
+                                  borderRadius: 'var(--radius-full)',
+                                  fontSize: '11px',
+                                  fontWeight: 600,
+                                  backgroundColor: st.type === 'Semilla' ? 'var(--primary-light)' : 'var(--tertiary-container)',
+                                  color: st.type === 'Semilla' ? 'var(--primary)' : 'var(--tertiary-dark)'
+                                }}>
+                                  {st.type}
+                                </span>
+                              </td>
+                              <td style={{ ...styles.td, textAlign: 'right', fontWeight: 600 }}>{(st.stock || 0).toLocaleString()} kg</td>
+                              <td style={{
+                                ...styles.td,
+                                textAlign: 'right',
+                                fontWeight: 500,
+                                color: st.temperature > 15 ? 'var(--error)' : 'var(--text-primary)'
+                              }}>{(st.temperature || 0).toFixed(1)}°C</td>
+                              <td style={{
+                                ...styles.td,
+                                textAlign: 'right',
+                                fontWeight: 500,
+                                color: st.humidity > 13 ? 'var(--error)' : 'var(--text-primary)'
+                              }}>{(st.humidity || 0).toFixed(1)}%</td>
+                              <td style={styles.td}>{st.lastUpdate ? new Date(st.lastUpdate).toLocaleString() : '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{
+                  flex: 1,
+                  minWidth: '280px',
+                  backgroundColor: 'var(--bg-primary)',
+                  border: '1px solid var(--outline)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '20px'
+                }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--primary)', margin: '0 0 16px 0' }}>Actualizar Sensores del Silo</h3>
+                  {storageList.length === 0 ? (
+                    <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Cargue silos semilla en Firebase para operar.</p>
+                  ) : (
+                    <form onSubmit={handleSaveStorage} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 500, color: 'var(--text-muted)', marginBottom: '6px' }}>Seleccionar Silo *</label>
+                        <select
+                          value={selectedStorageId}
+                          onChange={(e) => {
+                            setSelectedStorageId(e.target.value);
+                            const siloObj = storage[e.target.value];
+                            if (siloObj) {
+                              setStorageStock(siloObj.stock.toString());
+                              setStorageTemp(siloObj.temperature.toString());
+                              setStorageHum(siloObj.humidity.toString());
+                            }
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            fontSize: '13.5px',
+                            borderRadius: 'var(--radius-md)',
+                            border: '1px solid var(--outline)',
+                            outline: 'none',
+                            backgroundColor: '#ffffff',
+                            height: '40px',
+                          }}
+                          required
+                        >
+                          {storageList.map(st => (
+                            <option key={st.id} value={st.id}>{st.name} ({st.type})</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 500, color: 'var(--text-muted)', marginBottom: '6px' }}>Stock Físico ($kg$) *</label>
+                        <input
+                          type="number"
+                          value={storageStock}
+                          onChange={(e) => setStorageStock(e.target.value)}
+                          placeholder="Ej: 4800"
+                          style={{
+                            width: '100%',
+                            padding: '10px 12px',
+                            fontSize: '13.5px',
+                            borderRadius: 'var(--radius-md)',
+                            border: '1px solid var(--outline)',
+                            outline: 'none',
+                            backgroundColor: '#ffffff',
+                          }}
+                          required
+                        />
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <div style={{ flex: 1 }}>
+                          <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 500, color: 'var(--text-muted)', marginBottom: '6px' }}>Temp (°C) *</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={storageTemp}
+                            onChange={(e) => setStorageTemp(e.target.value)}
+                            style={{
+                              width: '100%',
+                              padding: '10px 12px',
+                              fontSize: '13.5px',
+                              borderRadius: 'var(--radius-md)',
+                              border: '1px solid var(--outline)',
+                              outline: 'none',
+                              backgroundColor: '#ffffff',
+                            }}
+                            required
+                          />
+                        </div>
+
+                        <div style={{ flex: 1 }}>
+                          <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 500, color: 'var(--text-muted)', marginBottom: '6px' }}>Humedad (%) *</label>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={storageHum}
+                            onChange={(e) => setStorageHum(e.target.value)}
+                            style={{
+                              width: '100%',
+                              padding: '10px 12px',
+                              fontSize: '13.5px',
+                              borderRadius: 'var(--radius-md)',
+                              border: '1px solid var(--outline)',
+                              outline: 'none',
+                              backgroundColor: '#ffffff',
+                            }}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: '12px' }}>
+                        <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={submittingStorage}>
+                          {submittingStorage ? 'Actualizando...' : 'Guardar Lecturas de Sensores'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -858,7 +1149,7 @@ export default function Warehouse() {
               <button onClick={() => setIsTraspasoModalOpen(false)} className="modal-close">&times;</button>
             </div>
             <form onSubmit={handleSaveTraspaso}>
-              <div style={styles.row}>
+              <div style={styles.row} className="view-form-row">
                 <div className="form-group" style={{ flex: 1 }}>
                   <label className="form-label" htmlFor="traspOrigen">Bodega de Origen</label>
                   <select
@@ -904,7 +1195,7 @@ export default function Warehouse() {
                 </select>
               </div>
 
-              <div style={styles.row}>
+              <div style={styles.row} className="view-form-row">
                 <div className="form-group" style={{ flex: 1 }}>
                   <label className="form-label" htmlFor="traspQty">Cantidad a Mover</label>
                   <input

@@ -184,16 +184,16 @@ export default function LandPreparation() {
   return (
     <div style={styles.container}>
       {/* Header */}
-      <header style={styles.header}>
+      <header style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Preparación de Terreno</h1>
-          <p style={styles.subtitle}>Gestión y registro de labores de arado, rastrado y subsolado de suelos</p>
+          <h1 style={styles.title} className="view-title">Preparación de Terreno</h1>
+          <p style={styles.subtitle} className="view-subtitle">Gestión y registro de labores de arado, rastrado y subsolado de suelos</p>
         </div>
       </header>
 
       {/* Navigation Tabs */}
-      <div style={styles.tabsContainer}>
-        <div style={styles.tabs}>
+      <div style={styles.tabsContainer} className="view-tabs-container">
+        <div style={styles.tabs} className="view-tabs">
           {TABS.map(tab => (
             <button
               key={tab.id}
@@ -214,23 +214,23 @@ export default function LandPreparation() {
         {activeTab === 'historial' && (
           <div>
             {/* KPI Cards */}
-            <div style={styles.kpiGrid}>
-              <div style={styles.kpiCard}>
+            <div style={styles.kpiGrid} className="view-kpi-grid">
+              <div style={styles.kpiCard} className="view-kpi-card">
                 <span style={styles.kpiLabel}>Horas de Labor</span>
                 <span style={styles.kpiValue}>{totalHours.toFixed(1)} hrs</span>
                 <span style={styles.kpiDesc}>Tiempo acumulado de maquinaria</span>
               </div>
-              <div style={styles.kpiCard}>
+              <div style={styles.kpiCard} className="view-kpi-card">
                 <span style={styles.kpiLabel}>Inversión Total</span>
                 <span style={styles.kpiValue}>${totalCost.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 <span style={styles.kpiDesc}>Costo total de combustible y arriendo</span>
               </div>
-              <div style={styles.kpiCard}>
+              <div style={styles.kpiCard} className="view-kpi-card">
                 <span style={styles.kpiLabel}>Costo Promedio/Hora</span>
                 <span style={styles.kpiValue}>${avgCostPerHour.toFixed(2)} /hr</span>
                 <span style={styles.kpiDesc}>Eficiencia promedio general</span>
               </div>
-              <div style={styles.kpiCard}>
+              <div style={styles.kpiCard} className="view-kpi-card">
                 <span style={styles.kpiLabel}>Labor Más Frecuente</span>
                 <span style={{ ...styles.kpiValue, fontSize: '20px', textTransform: 'capitalize' }}>{mostFrequentLabor}</span>
                 <span style={styles.kpiDesc}>{maxCount > 0 ? `${maxCount} faenas registradas` : 'Sin registros'}</span>
@@ -256,7 +256,7 @@ export default function LandPreparation() {
                 </button>
               </div>
             ) : (
-              <div style={styles.tableContainer}>
+              <div style={styles.tableContainer} className="view-table-container">
                 <table style={styles.table}>
                   <thead>
                     <tr style={styles.tableRowHead}>
@@ -265,9 +265,9 @@ export default function LandPreparation() {
                       <th style={styles.th}>Labor</th>
                       <th style={styles.th}>Maquinaria</th>
                       <th style={styles.th}>Operador</th>
-                      <th style={styles.th} style={{ textAlign: 'right' }}>Horas</th>
-                      <th style={styles.th} style={{ textAlign: 'right' }}>Costo</th>
-                      <th style={styles.th} style={{ textAlign: 'right' }}>Costo/Hr</th>
+                      <th style={{ ...styles.th, textAlign: 'right' }}>Horas</th>
+                      <th style={{ ...styles.th, textAlign: 'right' }}>Costo</th>
+                      <th style={{ ...styles.th, textAlign: 'right' }}>Costo/Hr</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -276,7 +276,7 @@ export default function LandPreparation() {
                       return (
                         <tr key={prep.id} style={styles.tableRowBody}>
                           <td style={styles.td}>{prep.date}</td>
-                          <td style={styles.td} style={{ fontWeight: 600 }}>{prep.lotName}</td>
+                          <td style={{ ...styles.td, fontWeight: 600 }}>{prep.lotName}</td>
                           <td style={styles.td}>
                             <span style={{
                               ...styles.badge,
@@ -289,9 +289,9 @@ export default function LandPreparation() {
                           </td>
                           <td style={styles.td}>{prep.machineName}</td>
                           <td style={styles.td}>{prep.operatorName}</td>
-                          <td style={styles.td} style={{ textAlign: 'right', fontWeight: 500 }}>{prep.hours} hrs</td>
-                          <td style={styles.td} style={{ textAlign: 'right', fontWeight: 600 }}>${prep.cost.toFixed(2)}</td>
-                          <td style={styles.td} style={{ textAlign: 'right', color: 'var(--text-muted)' }}>
+                          <td style={{ ...styles.td, textAlign: 'right', fontWeight: 500 }}>{prep.hours} hrs</td>
+                          <td style={{ ...styles.td, textAlign: 'right', fontWeight: 600 }}>${prep.cost.toFixed(2)}</td>
+                          <td style={{ ...styles.td, textAlign: 'right', color: 'var(--text-muted)' }}>
                             ${costHr.toFixed(2)}
                           </td>
                         </tr>
@@ -305,7 +305,7 @@ export default function LandPreparation() {
         )}
 
         {activeTab === 'registrar' && (
-          <div style={styles.formSplitGrid}>
+          <div style={styles.formSplitGrid} className="view-form-split-grid">
             <div style={{ flex: 1, minWidth: '300px' }}>
               <h2 style={styles.sectionTitle}>Registrar Nueva Faena</h2>
               <p style={styles.guideText}>
@@ -313,7 +313,7 @@ export default function LandPreparation() {
               </p>
 
               <form onSubmit={handleSavePreparation} style={styles.form}>
-                <div style={styles.row}>
+                <div style={styles.row} className="view-form-row">
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={styles.label}>Lote Asociado *</label>
                     <select
@@ -343,7 +343,7 @@ export default function LandPreparation() {
                   </div>
                 </div>
 
-                <div style={styles.row}>
+                <div style={styles.row} className="view-form-row">
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={styles.label}>Fecha de Ejecución *</label>
                     <input
@@ -370,7 +370,7 @@ export default function LandPreparation() {
                   </div>
                 </div>
 
-                <div style={styles.row}>
+                <div style={styles.row} className="view-form-row">
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={styles.label}>Operador Responsable *</label>
                     <select
@@ -386,7 +386,7 @@ export default function LandPreparation() {
                   </div>
                 </div>
 
-                <div style={styles.row}>
+                <div style={styles.row} className="view-form-row">
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <label style={styles.label}>Horas Trabajadas *</label>
                     <input
@@ -429,7 +429,7 @@ export default function LandPreparation() {
               </form>
             </div>
 
-            <div style={styles.guidePanel}>
+            <div style={styles.guidePanel} className="view-guide-panel">
               <h3 style={styles.guideTitle}>Pautas de Operación Agrícola</h3>
               <ul style={styles.guideList}>
                 <li>
@@ -451,7 +451,7 @@ export default function LandPreparation() {
 
         {activeTab === 'metricas' && (
           <div style={styles.metricsContainer}>
-            <div style={styles.row}>
+            <div style={styles.row} className="view-form-row">
               {/* Cost Chart */}
               <div style={styles.chartCard}>
                 <h3 style={styles.chartTitle}>Inversión Acumulada por Labor</h3>

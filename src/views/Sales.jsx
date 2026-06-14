@@ -119,10 +119,10 @@ export default function Sales() {
   return (
     <div>
       {/* Header */}
-      <div style={styles.header}>
+      <div style={styles.header} className="view-header">
         <div>
-          <h1 style={styles.title}>Portal de Ventas y Distribución</h1>
-          <p style={styles.subtitle}>Gestión de pedidos B2B y logística de despacho de Cañihua</p>
+          <h1 style={styles.title} className="view-title">Portal de Ventas y Distribución</h1>
+          <p style={styles.subtitle} className="view-subtitle">Gestión de pedidos B2B y logística de despacho de Cañihua</p>
         </div>
         <button onClick={() => setIsModalOpen(true)} className="btn btn-primary">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -164,7 +164,7 @@ export default function Sales() {
         </div>
       ) : (
         <div className="card">
-          <div style={styles.tableContainer}>
+          <div style={styles.tableContainer} className="view-table-container">
             <table style={styles.table}>
               <thead>
                 <tr style={styles.tableRowHead}>

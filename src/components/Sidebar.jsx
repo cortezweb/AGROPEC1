@@ -1,20 +1,37 @@
 import React from 'react';
 
-export default function Sidebar({ activeView, onViewChange, onLogout }) {
+export default function Sidebar({ activeView, onViewChange, onLogout, isOpen, setIsOpen }) {
+  const handleNavigation = (view) => {
+    onViewChange(view);
+    if (setIsOpen) setIsOpen(false);
+  };
+
   return (
-    <aside style={styles.sidebar}>
+    <aside className={`sidebar-container ${isOpen ? 'open' : ''}`}>
       {/* Brand Header */}
       <div style={styles.brand}>
-        <div style={styles.logoContainer}>
-          <svg style={styles.logo} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 22h20L12 2z" fill="var(--primary)" />
-            <circle cx="12" cy="14" r="3" fill="#ffffff" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+          <div style={styles.logoContainer}>
+            <svg style={styles.logo} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 22h20L12 2z" fill="var(--primary)" />
+              <circle cx="12" cy="14" r="3" fill="#ffffff" />
+            </svg>
+          </div>
+          <div style={styles.brandName}>
+            <h2 style={styles.brandTitle}>CANAVIRI</h2>
+            <span style={styles.brandSubtitle}>Sistema de Cañihua</span>
+          </div>
+        </div>
+        <button 
+          className="mobile-close-btn" 
+          onClick={() => setIsOpen(false)}
+          aria-label="Cerrar menú"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
-        </div>
-        <div style={styles.brandName}>
-          <h2 style={styles.brandTitle}>CANAVIRI</h2>
-          <span style={styles.brandSubtitle}>Sistema de Cañihua</span>
-        </div>
+        </button>
       </div>
 
       {/* User Status */}
@@ -29,7 +46,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
       {/* Navigation Links */}
       <nav style={styles.nav}>
         <button
-          onClick={() => onViewChange('dashboard')}
+          onClick={() => handleNavigation('dashboard')}
           style={{
             ...styles.navLink,
             ...(activeView === 'dashboard' ? styles.navLinkActive : {})
@@ -45,7 +62,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('campaigns')}
+          onClick={() => handleNavigation('campaigns')}
           style={{
             ...styles.navLink,
             ...(activeView === 'campaigns' ? styles.navLinkActive : {})
@@ -61,7 +78,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('lots')}
+          onClick={() => handleNavigation('lots')}
           style={{
             ...styles.navLink,
             ...(activeView === 'lots' || activeView === 'lot-detail' ? styles.navLinkActive : {})
@@ -74,7 +91,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('soil-analysis')}
+          onClick={() => handleNavigation('soil-analysis')}
           style={{
             ...styles.navLink,
             ...(activeView === 'soil-analysis' ? styles.navLinkActive : {})
@@ -88,7 +105,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('land-preparation')}
+          onClick={() => handleNavigation('land-preparation')}
           style={{
             ...styles.navLink,
             ...(activeView === 'land-preparation' ? styles.navLinkActive : {})
@@ -104,7 +121,54 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('processing')}
+          onClick={() => handleNavigation('crop-cycle')}
+          style={{
+            ...styles.navLink,
+            ...(activeView === 'crop-cycle' ? styles.navLinkActive : {})
+          }}
+        >
+          <svg style={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M2 22a8 8 0 0 1 8-8h4a8 8 0 0 1 8 8" />
+            <path d="M12 2v12" />
+            <path d="M12 2a5 5 0 0 1 5 5v3h-5" />
+            <path d="M12 2a5 5 0 0 0-5 5v3h5" />
+          </svg>
+          Siembra y Cosecha
+        </button>
+
+        <button
+          onClick={() => handleNavigation('crop-protection')}
+          style={{
+            ...styles.navLink,
+            ...(activeView === 'crop-protection' ? styles.navLinkActive : {})
+          }}
+        >
+          <svg style={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M12 8v8" />
+            <path d="M9 11h6" />
+          </svg>
+          Protección y Nutrición
+        </button>
+
+        <button
+          onClick={() => handleNavigation('field-notebook')}
+          style={{
+            ...styles.navLink,
+            ...(activeView === 'field-notebook' ? styles.navLinkActive : {})
+          }}
+        >
+          <svg style={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+            <path d="M6 6h10" />
+            <path d="M6 10h10" />
+            <path d="M6 14h10" />
+          </svg>
+          Cuaderno de Campo
+        </button>
+
+        <button
+          onClick={() => handleNavigation('processing')}
           style={{
             ...styles.navLink,
             ...(activeView === 'processing' ? styles.navLinkActive : {})
@@ -119,7 +183,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('staff')}
+          onClick={() => handleNavigation('staff')}
           style={{
             ...styles.navLink,
             ...(activeView === 'staff' ? styles.navLinkActive : {})
@@ -135,7 +199,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('machinery')}
+          onClick={() => handleNavigation('machinery')}
           style={{
             ...styles.navLink,
             ...(activeView === 'machinery' ? styles.navLinkActive : {})
@@ -149,7 +213,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('irrigation')}
+          onClick={() => handleNavigation('irrigation')}
           style={{
             ...styles.navLink,
             ...(activeView === 'irrigation' ? styles.navLinkActive : {})
@@ -162,7 +226,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('warehouse')}
+          onClick={() => handleNavigation('warehouse')}
           style={{
             ...styles.navLink,
             ...(activeView === 'warehouse' ? styles.navLinkActive : {})
@@ -178,7 +242,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
-          onClick={() => onViewChange('sales')}
+          onClick={() => handleNavigation('sales')}
           style={{
             ...styles.navLink,
             ...(activeView === 'sales' ? styles.navLinkActive : {})
@@ -190,6 +254,20 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
           </svg>
           Portal de Ventas
+        </button>
+
+        <button
+          onClick={() => handleNavigation('finance-rentability')}
+          style={{
+            ...styles.navLink,
+            ...(activeView === 'finance-rentability' ? styles.navLinkActive : {})
+          }}
+        >
+          <svg style={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+          Costos y Rentabilidad
         </button>
       </nav>
 
