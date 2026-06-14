@@ -7,6 +7,7 @@ const STAGES = ['Siembra', 'Crecimiento', 'Cosecha', 'Procesamiento', 'Empacado'
 export default function LotDetail({ lotId, onBack }) {
   const [lot, setLot] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('sensores'); // sensores / mapa / historial
 
   useEffect(() => {
     const lotRef = ref(db, `lots/${lotId}`);
@@ -25,7 +26,6 @@ export default function LotDetail({ lotId, onBack }) {
     const lotRef = ref(db, `lots/${lotId}`);
     update(lotRef, {
       status: newStatus,
-      // Adjust humidity/temp dynamically on status change for realism
       currentHumidity: newStatus === 'Cosecha' ? lot.targetHumidity - 5 : lot.targetHumidity
     }).catch(err => {
       console.error("Error updating status:", err);
@@ -65,6 +65,71 @@ export default function LotDetail({ lotId, onBack }) {
   const currentStageIndex = STAGES.indexOf(lot.status);
   const humidityPercentage = Math.min(Math.round((lot.currentHumidity / lot.targetHumidity) * 100), 100);
 
+  // Generate dynamic product history logs based on plantingDate and current stage
+  const getProductiveHistory = () => {
+    const history = [];
+    const pDate = new Date(lot.plantingDate || '2026-02-15');
+
+    const addDays = (date, days) => {
+      const result = new Date(date);
+      result.setDate(result.getDate() + days);
+      return result.toISOString().substring(0, 10);
+    };
+
+    history.push({
+      date: lot.plantingDate || '2026-02-15',
+      activity: 'Preparación del Suelo',
+      desc: `Acondicionamiento del terreno en la comunidad ${lot.community || 'Phuscani'}. Incorporación de abono orgánico en suelo tipo ${lot.soilType || 'Franco'}.`
+    });
+
+    history.push({
+      date: addDays(pDate, 1),
+      activity: 'Siembra Autorizada',
+      desc: `Siembra de Cañihua variedad ${lot.variety || 'Cupilapaca'} a una altitud de ${lot.altitude || '3820'} msnm. Responsable del ciclo: ${lot.producer || 'Hamilton Canaviri'}.`
+    });
+
+    if (currentStageIndex >= 1) { // Crecimiento
+      history.push({
+        date: addDays(pDate, 15),
+        activity: 'Germinación y Emergencia',
+        desc: 'Emergencia foliar uniforme de las plantas de Cañihua. Control fenológico inicial exitoso.'
+      });
+      history.push({
+        date: addDays(pDate, 35),
+        activity: 'Riego Localizado',
+        desc: `Aplicación de riego controlado para mantener humedad de suelo cercana al objetivo del ${lot.targetHumidity || '65'}%.`
+      });
+    }
+
+    if (currentStageIndex >= 2) { // Cosecha
+      history.push({
+        date: addDays(pDate, 90),
+        activity: 'Corte y Trilla (Cosecha)',
+        desc: 'Recolección mecánica de los granos maduros. Rendimiento estimado óptimo. Calidad del grano: Grado A.'
+      });
+    }
+
+    if (currentStageIndex >= 3) { // Procesamiento
+      history.push({
+        date: addDays(pDate, 95),
+        activity: 'Aventamiento y Clasificación',
+        desc: 'Limpieza de impurezas y clasificación del grano por tamaño en las cribas de planta.'
+      });
+    }
+
+    if (currentStageIndex >= 4) { // Empacado
+      history.push({
+        date: addDays(pDate, 100),
+        activity: 'Envasado y Sellado',
+        desc: 'Granos de Cañihua envasados al vacío en sacos sellados de polipropileno listos para ventas B2B.'
+      });
+    }
+
+    return history.reverse();
+  };
+
+  const historyLogs = getProductiveHistory();
+
   return (
     <div>
       {/* Header */}
@@ -85,71 +150,182 @@ export default function LotDetail({ lotId, onBack }) {
 
       <div style={styles.titleSection}>
         <h1 style={styles.title}>{lot.name}</h1>
-        <p style={styles.subtitle}>Detalle técnico, calidad y trazabilidad de Cañihua variedad <strong>{lot.variety}</strong></p>
+        <p style={styles.subtitle}>Ficha técnica agronómica extendida y monitoreo satelital en tiempo real</p>
       </div>
 
       <div style={styles.contentGrid}>
-        {/* Left Side: Technical Info & Sensor Cards */}
+        {/* Left Side: Technical Info & Tabs (Sensors/Map/History) */}
         <div style={styles.leftCol}>
-          {/* Sensors Card */}
+          
+          {/* Ficha Técnica Card */}
           <div className="card" style={styles.cardInfo}>
-            <h3 style={styles.sectionTitle}>Sensores de Suelo</h3>
-            <div style={styles.sensorsGrid}>
-              <div style={styles.sensorItem}>
-                <div style={styles.sensorLabel}>Humedad Actual</div>
-                <div style={styles.sensorVal}>{lot.currentHumidity?.toFixed(1)}%</div>
-                <div style={styles.sensorTarget}>Objetivo: {lot.targetHumidity}%</div>
-              </div>
-              <div style={styles.sensorItem}>
-                <div style={styles.sensorLabel}>Temperatura Suelo</div>
-                <div style={styles.sensorVal}>{lot.currentTemp?.toFixed(1)}°C</div>
-                <div style={styles.sensorTarget}>Objetivo: {lot.targetTemp}°C</div>
-              </div>
-            </div>
-            <div style={{ ...styles.progressSection, marginTop: '24px' }}>
-              <div style={styles.progressLabels}>
-                <span>Ratio de Humedad Óptima</span>
-                <span style={{ fontWeight: 600 }}>{humidityPercentage}%</span>
-              </div>
-              <div style={styles.progressTrack}>
-                <div 
-                  style={{ 
-                    ...styles.progressFill, 
-                    width: `${humidityPercentage}%`,
-                    backgroundColor: lot.currentHumidity >= lot.targetHumidity ? 'var(--tertiary)' : 'var(--primary)'
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Crop parameters */}
-          <div className="card" style={styles.cardInfo}>
-            <h3 style={styles.sectionTitle}>Ficha Técnica</h3>
+            <h3 style={styles.sectionTitle}>Ficha Técnica Agronómica</h3>
             <div style={styles.detailsList}>
               <div style={styles.detailRow}>
-                <span style={styles.detailLabel}>Variedad Cultivada</span>
-                <span style={styles.detailValue}>{lot.variety}</span>
+                <span style={styles.detailLabel}>Código Lote</span>
+                <span style={styles.detailValue}>{lot.code || 'LOT-N/A'}</span>
               </div>
               <div style={styles.detailRow}>
-                <span style={styles.detailLabel}>Área Total</span>
+                <span style={styles.detailLabel}>Productor Responsable</span>
+                <span style={styles.detailValue}>{lot.producer || 'Hamilton Canaviri'}</span>
+              </div>
+              <div style={styles.detailRow}>
+                <span style={styles.detailLabel}>Comunidad de Origen</span>
+                <span style={styles.detailValue}>{lot.community || 'Comunidad General'}</span>
+              </div>
+              <div style={styles.detailRow}>
+                <span style={styles.detailLabel}>Superficie (Área)</span>
                 <span style={styles.detailValue}>{lot.area} Hectáreas</span>
               </div>
               <div style={styles.detailRow}>
-                <span style={styles.detailLabel}>Fecha de Siembra</span>
-                <span style={styles.detailValue}>{lot.plantingDate}</span>
+                <span style={styles.detailLabel}>Variedad de Cañihua</span>
+                <span style={styles.detailValue}>{lot.variety}</span>
               </div>
               <div style={styles.detailRow}>
-                <span style={styles.detailLabel}>Grado de Calidad</span>
-                <span style={{ ...styles.detailValue, color: 'var(--tertiary)', fontWeight: 700 }}>GRADO A</span>
+                <span style={styles.detailLabel}>Altitud Promedio</span>
+                <span style={styles.detailValue}>{lot.altitude || '3820'} msnm</span>
+              </div>
+              <div style={styles.detailRow}>
+                <span style={styles.detailLabel}>Tipo de Suelo</span>
+                <span style={styles.detailValue}>{lot.soilType || 'Franco'}</span>
+              </div>
+              <div style={styles.detailRow}>
+                <span style={styles.detailLabel}>Coordenadas GPS</span>
+                <span style={{ ...styles.detailValue, color: 'var(--primary)', fontFamily: 'monospace' }}>
+                  {lot.gps || '-16.1428, -69.2154'}
+                </span>
               </div>
             </div>
           </div>
 
+          {/* Interactive Navigation Tabs for Left Column Bottom */}
+          <div style={styles.tabsContainer}>
+            <button
+              onClick={() => setActiveTab('sensores')}
+              style={{ ...styles.tabBtn, ...(activeTab === 'sensores' ? styles.tabBtnActive : {}) }}
+            >
+              Sensores IoT
+            </button>
+            <button
+              onClick={() => setActiveTab('mapa')}
+              style={{ ...styles.tabBtn, ...(activeTab === 'mapa' ? styles.tabBtnActive : {}) }}
+            >
+              Mapa de Ubicación
+            </button>
+            <button
+              onClick={() => setActiveTab('historial')}
+              style={{ ...styles.tabBtn, ...(activeTab === 'historial' ? styles.tabBtnActive : {}) }}
+            >
+              Historial Productivo
+            </button>
+          </div>
+
+          {/* TAB 1: SENSORES IoT */}
+          {activeTab === 'sensores' && (
+            <div className="card" style={styles.cardInfo}>
+              <h3 style={styles.sectionTitle}>Telemetría de Suelo (Humedad / Temperatura)</h3>
+              <div style={styles.sensorsGrid}>
+                <div style={styles.sensorItem}>
+                  <div style={styles.sensorLabel}>Humedad Actual</div>
+                  <div style={styles.sensorVal}>{lot.currentHumidity?.toFixed(1)}%</div>
+                  <div style={styles.sensorTarget}>Objetivo: {lot.targetHumidity}%</div>
+                </div>
+                <div style={styles.sensorItem}>
+                  <div style={styles.sensorLabel}>Temperatura Suelo</div>
+                  <div style={styles.sensorVal}>{lot.currentTemp?.toFixed(1)}°C</div>
+                  <div style={styles.sensorTarget}>Objetivo: {lot.targetTemp}°C</div>
+                </div>
+              </div>
+              <div style={{ ...styles.progressSection, marginTop: '24px' }}>
+                <div style={styles.progressLabels}>
+                  <span>Ratio de Humedad Óptima</span>
+                  <span style={{ fontWeight: 600 }}>{humidityPercentage}%</span>
+                </div>
+                <div style={styles.progressTrack}>
+                  <div 
+                    style={{ 
+                      ...styles.progressFill, 
+                      width: `${humidityPercentage}%`,
+                      backgroundColor: lot.currentHumidity >= lot.targetHumidity ? 'var(--tertiary)' : 'var(--primary)'
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: MAPA DE UBICACIÓN */}
+          {activeTab === 'mapa' && (
+            <div className="card" style={styles.cardInfo}>
+              <h3 style={styles.sectionTitle}>Visualizador de Ubicación GPS</h3>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                Ubicación del terreno en la comunidad <strong>{lot.community || 'Phuscani'}</strong>. Coordenadas: <code>{lot.gps || '-16.1428, -69.2154'}</code>.
+              </p>
+              <div style={styles.mapContainer}>
+                <svg viewBox="0 0 400 200" style={styles.mapSvg}>
+                  {/* Topographic contours */}
+                  <path d="M10,120 C100,60 200,140 390,120" fill="none" stroke="#e0dbd5" strokeWidth="2" />
+                  <path d="M10,150 C100,90 200,170 390,150" fill="none" stroke="#e0dbd5" strokeWidth="2" />
+                  <path d="M10,90 C100,30 200,110 390,90" fill="none" stroke="#e0dbd5" strokeWidth="1" />
+
+                  {/* Neighbor fields */}
+                  <polygon points="20,20 120,10 100,70 10,60" fill="rgba(108, 47, 0, 0.03)" stroke="#d5c8be" strokeWidth="1" />
+                  <text x="55" y="45" textAnchor="middle" style={styles.mapLabel}>Lote Vecino B-12</text>
+
+                  <polygon points="260,20 380,30 350,110 230,100" fill="rgba(50, 69, 54, 0.03)" stroke="#c3cfc5" strokeWidth="1" />
+                  <text x="300" y="65" textAnchor="middle" style={styles.mapLabel}>Comunidad Phuscani</text>
+
+                  {/* Current Active Lot Bounds */}
+                  <polygon points="120,40 240,30 210,140 90,120" fill="rgba(108, 47, 0, 0.08)" stroke="var(--primary)" strokeWidth="2" />
+                  <text x="165" y="90" textAnchor="middle" style={{ fontSize: '11px', fill: 'var(--primary)', fontWeight: 700 }}>
+                    {lot.name}
+                  </text>
+
+                  {/* GPS Pin Mark */}
+                  <g>
+                    <circle cx="165" cy="75" r="5" fill="var(--error)" />
+                    <circle cx="165" cy="75" r="15" fill="none" stroke="var(--error)" strokeWidth="1.5">
+                      <animate attributeName="r" values="5;20;5" dur="2.5s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="1;0;1" dur="2.5s" repeatCount="indefinite" />
+                    </circle>
+                    <circle cx="165" cy="75" r="2" fill="#ffffff" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: HISTORIAL PRODUCTIVO */}
+          {activeTab === 'historial' && (
+            <div className="card" style={styles.cardInfo}>
+              <h3 style={styles.sectionTitle}>Bitácora del Ciclo Productivo</h3>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px' }}>Historial cronológico de tareas ejecutadas en el lote</p>
+              
+              <div style={styles.historyList}>
+                {historyLogs.map((log, idx) => (
+                  <div key={idx} style={styles.historyItem}>
+                    <div style={styles.historyHeader}>
+                      <span style={styles.historyActivity}>{log.activity}</span>
+                      <span style={styles.historyDate}>{log.date}</span>
+                    </div>
+                    <p style={styles.historyDesc}>{log.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* Right Side: Timeline & Quick Actions */}
+        <div style={styles.rightCol}>
+          
           {/* Quick Actions (Modify status) */}
-          <div className="card" style={styles.cardInfo}>
-            <h3 style={styles.sectionTitle}>Acciones Rápidas</h3>
-            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>Actualiza el estado de tu lote en la base de datos de Firebase</p>
+          <div className="card" style={{ marginBottom: '24px' }}>
+            <h3 style={styles.sectionTitle}>Transición de Estado</h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
+              Cambiar la etapa actual del ciclo fenológico del cultivo:
+            </p>
             <div style={styles.buttonsList}>
               {STAGES.map((stage, idx) => (
                 <button
@@ -160,18 +336,18 @@ export default function LotDetail({ lotId, onBack }) {
                   style={{ justifyContent: 'flex-start', padding: '10px 16px' }}
                 >
                   <span style={styles.btnNumber}>{idx + 1}</span>
-                  {lot.status === stage ? `Actual: ${stage}` : `Pasar a ${stage}`}
+                  {lot.status === stage ? `Etapa Actual: ${stage}` : `Cambiar a ${stage}`}
                 </button>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Right Side: Timeline & Logs */}
-        <div style={styles.rightCol}>
-          <div className="card" style={{ height: '100%' }}>
+          {/* Crop Timeline */}
+          <div className="card">
             <h3 style={styles.sectionTitle}>Línea de Tiempo del Cultivo</h3>
-            <p style={{ ...styles.cardSubtitle, marginBottom: '32px' }}>Fases operativas del lote de Cañihua</p>
+            <p style={{ ...styles.cardSubtitle, marginBottom: '24px', fontSize: '12.5px', color: 'var(--text-muted)' }}>
+              Fases operativas de la Cañihua
+            </p>
             
             <div className="timeline">
               {STAGES.map((stage, idx) => {
@@ -183,7 +359,7 @@ export default function LotDetail({ lotId, onBack }) {
                     <div className="timeline-dot"></div>
                     <div className="timeline-content">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="timeline-title" style={{ color: isActive ? 'var(--primary)' : 'var(--text-primary)' }}>
+                        <span className="timeline-title" style={{ color: isActive ? 'var(--primary)' : 'var(--text-primary)', fontWeight: isActive ? 700 : 500 }}>
                           {stage}
                         </span>
                         {isActive && <span style={styles.activeTag}>FASE ACTIVA</span>}
@@ -202,6 +378,7 @@ export default function LotDetail({ lotId, onBack }) {
               })}
             </div>
           </div>
+
         </div>
       </div>
     </div>
@@ -244,7 +421,7 @@ const styles = {
     flexWrap: 'wrap',
   },
   leftCol: {
-    flex: 1.2,
+    flex: 1.3,
     display: 'flex',
     flexDirection: 'column',
     gap: '24px',
@@ -305,6 +482,9 @@ const styles = {
     paddingBottom: '8px',
     borderBottom: '1px solid var(--outline)',
     fontSize: '14px',
+  },
+  detailLabel: {
+    color: 'var(--text-muted)',
   },
   detailValue: {
     fontWeight: 600,
@@ -386,4 +566,74 @@ const styles = {
     borderRadius: 'var(--radius-full)',
     animation: 'spin 1s linear infinite',
   },
+  tabsContainer: {
+    display: 'flex',
+    gap: '8px',
+    borderBottom: '1px solid var(--outline)',
+    paddingBottom: '2px',
+    overflowX: 'auto',
+  },
+  tabBtn: {
+    padding: '10px 16px',
+    fontSize: '13px',
+    fontWeight: 600,
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderBottom: '2px solid transparent',
+    color: 'var(--text-muted)',
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    transition: 'all 0.2s',
+  },
+  tabBtnActive: {
+    color: 'var(--primary)',
+    borderBottomColor: 'var(--primary)',
+  },
+  mapContainer: {
+    width: '100%',
+  },
+  mapSvg: {
+    width: '100%',
+    height: 'auto',
+    backgroundColor: '#f6f5f4',
+    border: '1px solid var(--outline)',
+    borderRadius: 'var(--radius-md)',
+  },
+  mapLabel: {
+    fontSize: '8px',
+    fill: 'var(--text-muted)',
+    fontWeight: 500,
+  },
+  historyList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px',
+  },
+  historyItem: {
+    padding: '16px',
+    backgroundColor: 'var(--bg-primary)',
+    border: '1px solid var(--outline)',
+    borderRadius: 'var(--radius-md)',
+  },
+  historyHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '6px',
+  },
+  historyActivity: {
+    fontWeight: 700,
+    fontSize: '13.5px',
+    color: 'var(--primary)',
+  },
+  historyDate: {
+    fontSize: '12px',
+    color: 'var(--text-muted)',
+    fontWeight: 500,
+  },
+  historyDesc: {
+    fontSize: '12.5px',
+    color: 'var(--text-primary)',
+    lineHeight: '1.4',
+  }
 };

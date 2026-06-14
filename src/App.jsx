@@ -17,6 +17,7 @@ import { ref, onValue, set } from 'firebase/database';
 const MOCK_LOTS = {
   'lot-1': {
     id: 'lot-1',
+    code: 'LOT-C01',
     name: 'Lote Canaviri C-01',
     variety: 'Cupilapaca',
     area: 3.2,
@@ -26,10 +27,16 @@ const MOCK_LOTS = {
     targetTemp: 12,
     currentHumidity: 58.4,
     currentTemp: 12.8,
+    producer: 'Mateo Quispe',
+    community: 'Comunidad Phuscani',
+    gps: '-16.1428, -69.2154',
+    altitude: 3820,
+    soilType: 'Franco-Arenoso',
     createdAt: '2026-02-15T08:00:00.000Z'
   },
   'lot-2': {
     id: 'lot-2',
+    code: 'LOT-C02',
     name: 'Lote Canaviri C-02',
     variety: 'Lasti',
     area: 1.8,
@@ -39,10 +46,16 @@ const MOCK_LOTS = {
     targetTemp: 14,
     currentHumidity: 68.2,
     currentTemp: 13.9,
+    producer: 'Lucía Mamani',
+    community: 'Comunidad Phuscani',
+    gps: '-16.1512, -69.2084',
+    altitude: 3815,
+    soilType: 'Franco-Arcilloso',
     createdAt: '2026-03-10T09:30:00.000Z'
   },
   'lot-3': {
     id: 'lot-3',
+    code: 'LOT-C03',
     name: 'Lote Canaviri C-03',
     variety: 'Saihua',
     area: 2.5,
@@ -52,6 +65,11 @@ const MOCK_LOTS = {
     targetTemp: 15,
     currentHumidity: 64.0,
     currentTemp: 15.2,
+    producer: 'Juan Choque',
+    community: 'Comunidad Phuscani',
+    gps: '-16.1385, -69.2201',
+    altitude: 3830,
+    soilType: 'Franco',
     createdAt: '2026-05-20T10:15:00.000Z'
   }
 };
