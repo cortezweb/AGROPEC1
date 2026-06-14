@@ -74,6 +74,20 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
         </button>
 
         <button
+          onClick={() => onViewChange('soil-analysis')}
+          style={{
+            ...styles.navLink,
+            ...(activeView === 'soil-analysis' ? styles.navLinkActive : {})
+          }}
+        >
+          <svg style={styles.icon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 2h12M10 2v7.586l-4 4V20a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-6.414l-4-4V2" />
+            <line x1="6" y1="16" x2="18" y2="16" />
+          </svg>
+          Análisis de Suelo
+        </button>
+
+        <button
           onClick={() => onViewChange('processing')}
           style={{
             ...styles.navLink,

@@ -11,6 +11,7 @@ import Machinery from './views/Machinery';
 import IrrigationWeather from './views/IrrigationWeather';
 import Warehouse from './views/Warehouse';
 import Campaigns from './views/Campaigns';
+import SoilAnalysis from './views/SoilAnalysis';
 import { db } from './firebase';
 import { ref, onValue, set } from 'firebase/database';
 
@@ -370,6 +371,37 @@ const MOCK_CAMPAIGNS = {
   }
 };
 
+const MOCK_SOIL_ANALYSIS = {
+  'analysis-1': {
+    id: 'analysis-1',
+    lotId: 'lot-1',
+    lotName: 'Lote Canaviri C-01',
+    date: '2026-05-10',
+    ph: 5.8,
+    organicMatter: 3.2,
+    nitrogen: 12.0,
+    phosphorus: 8.5,
+    potassium: 95.0,
+    pdfName: 'reporte_quimico_c01.pdf',
+    pdfSize: '1.2 MB',
+    createdAt: '2026-05-10T14:00:00.000Z'
+  },
+  'analysis-2': {
+    id: 'analysis-2',
+    lotId: 'lot-3',
+    lotName: 'Lote Canaviri C-03',
+    date: '2026-06-01',
+    ph: 6.5,
+    organicMatter: 4.1,
+    nitrogen: 18.5,
+    phosphorus: 14.0,
+    potassium: 130.0,
+    pdfName: 'reporte_lab_c03.pdf',
+    pdfSize: '950 KB',
+    createdAt: '2026-06-01T10:30:00.000Z'
+  }
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
@@ -518,6 +550,18 @@ function App() {
           set(campaignsRef, MOCK_CAMPAIGNS).catch(err => console.error(err));
         }
       }, { onlyOnce: true });
+
+      // Seed Soil Analysis
+      const soilAnalysisRef = ref(db, 'soil_analysis');
+      onValue(soilAnalysisRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          console.log("Soil Analysis empty, seeding mock soil analysis...");
+          set(soilAnalysisRef, MOCK_SOIL_ANALYSIS).catch(err => {
+            console.error("Error seeding mock soil analysis to Firebase:", err);
+          });
+        }
+      }, { onlyOnce: true });
     }
   }, [isAuthenticated]);
 
@@ -586,6 +630,9 @@ function App() {
         )}
         {activeView === 'campaigns' && (
           <Campaigns />
+        )}
+        {activeView === 'soil-analysis' && (
+          <SoilAnalysis />
         )}
       </main>
     </div>
