@@ -10,6 +10,7 @@ import Staff from './views/Staff';
 import Machinery from './views/Machinery';
 import IrrigationWeather from './views/IrrigationWeather';
 import Warehouse from './views/Warehouse';
+import Campaigns from './views/Campaigns';
 import { db } from './firebase';
 import { ref, onValue, set } from 'firebase/database';
 
@@ -318,6 +319,39 @@ const MOCK_WAREHOUSE_INVOICES = {
   }
 };
 
+const MOCK_CAMPAIGNS = {
+  'camp-1': {
+    id: 'camp-1',
+    name: 'Campaña Cañihua de Invierno',
+    season: 'Gestión 2026-I',
+    startDate: '2026-02-15',
+    endDate: '2026-06-30',
+    crop: 'Cañihua Cupilapaca',
+    responsible: 'Hamilton Canaviri',
+    status: 'Activa'
+  },
+  'camp-2': {
+    id: 'camp-2',
+    name: 'Campaña Cañihua de Primavera',
+    season: 'Gestión 2026-II',
+    startDate: '2026-08-10',
+    endDate: '2026-12-20',
+    crop: 'Cañihua Lasti',
+    responsible: 'Mateo Quispe',
+    status: 'Planificada'
+  },
+  'camp-3': {
+    id: 'camp-3',
+    name: 'Campaña Piloto Saihua',
+    season: 'Gestión 2025-II',
+    startDate: '2025-09-01',
+    endDate: '2026-01-15',
+    crop: 'Cañihua Saihua',
+    responsible: 'Lucía Mamani',
+    status: 'Finalizada'
+  }
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
@@ -457,6 +491,15 @@ function App() {
           set(warehouseInvoicesRef, MOCK_WAREHOUSE_INVOICES).catch(err => console.error(err));
         }
       }, { onlyOnce: true });
+
+      // Seed Campaigns
+      const campaignsRef = ref(db, 'campaigns');
+      onValue(campaignsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(campaignsRef, MOCK_CAMPAIGNS).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
     }
   }, [isAuthenticated]);
 
@@ -522,6 +565,9 @@ function App() {
         )}
         {activeView === 'warehouse' && (
           <Warehouse />
+        )}
+        {activeView === 'campaigns' && (
+          <Campaigns />
         )}
       </main>
     </div>
