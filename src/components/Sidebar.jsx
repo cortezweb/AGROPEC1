@@ -44,7 +44,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout, isOpen, se
       </div>
 
       {/* Navigation Links */}
-      <nav style={styles.nav}>
+      <nav className="sidebar-nav" style={styles.nav}>
         <button
           onClick={() => handleNavigation('dashboard')}
           style={{
