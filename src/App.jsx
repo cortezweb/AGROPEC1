@@ -8,7 +8,7 @@ import Processing from './views/Processing';
 import Sales from './views/Sales';
 import Staff from './views/Staff';
 import Machinery from './views/Machinery';
-import IrrigationWeather from './views/IrrigationWeather';
+import IrrigationSystem from './views/IrrigationSystem';
 import Warehouse from './views/Warehouse';
 import Campaigns from './views/Campaigns';
 import SoilAnalysis from './views/SoilAnalysis';
@@ -248,23 +248,43 @@ const MOCK_WEATHER_HISTORY = {
 const MOCK_IRRIGATION_LOGS = {
   'log-1': {
     id: 'log-1',
+    lotId: 'lot-1',
     sector: 'Lote Canaviri C-01',
     mmAccumulated: 12.5,
     date: '2026-06-10',
     type: 'Goteo',
     hours: 3,
     caudal: 15,
+    waterConsumed: 2700,
     createdAt: '2026-06-10T08:00:00.000Z'
   },
   'log-2': {
     id: 'log-2',
+    lotId: 'lot-3',
     sector: 'Lote Canaviri C-03',
     mmAccumulated: 8.0,
     date: '2026-06-11',
     type: 'Aspersión',
     hours: 2,
     caudal: 20,
+    waterConsumed: 2400,
     createdAt: '2026-06-11T09:00:00.000Z'
+  }
+};
+
+const MOCK_IRRIGATION_CONTROLS = {
+  'ctrl-1': {
+    id: 'ctrl-1',
+    lotId: 'lot-1',
+    sector: 'Lote Canaviri C-01',
+    date: '2026-06-15',
+    type: 'Goteo',
+    hours: 2,
+    caudal: 12,
+    waterConsumed: 1440,
+    mmAccumulated: 14.4,
+    status: 'Programado',
+    createdAt: '2026-06-14T08:00:00.000Z'
   }
 };
 
@@ -561,6 +581,15 @@ function App() {
         }
       }, { onlyOnce: true });
 
+      // Seed Irrigation Controls
+      const irrigationControlsRef = ref(db, 'irrigation_controls');
+      onValue(irrigationControlsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+          set(irrigationControlsRef, MOCK_IRRIGATION_CONTROLS).catch(err => console.error(err));
+        }
+      }, { onlyOnce: true });
+
       // Seed Warehouse Inventory
       const warehouseInventoryRef = ref(db, 'warehouse_inventory');
       onValue(warehouseInventoryRef, (snapshot) => {
@@ -681,7 +710,7 @@ function App() {
           <Machinery />
         )}
         {activeView === 'irrigation' && (
-          <IrrigationWeather />
+          <IrrigationSystem />
         )}
         {activeView === 'warehouse' && (
           <Warehouse />
